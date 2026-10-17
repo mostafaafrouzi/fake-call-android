@@ -30,7 +30,18 @@
 
 ## تصاویر
 
-به‌زودی در پوشهٔ `docs/screenshots/` قرار می‌گیرند.
+<p align="center">
+  <img src="docs/screenshots/01_home_light.png" width="22%" alt="صفحهٔ اصلی" />
+  <img src="docs/screenshots/03_incoming_call.png" width="22%" alt="تماس ورودی" />
+  <img src="docs/screenshots/04_active_call.png" width="22%" alt="حین مکالمه" />
+  <img src="docs/screenshots/05_history_light.png" width="22%" alt="تاریخچهٔ تماس‌ها" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/02_profiles_light.png" width="22%" alt="پروفایل‌ها" />
+  <img src="docs/screenshots/06_settings_light.png" width="22%" alt="تنظیمات" />
+  <img src="docs/screenshots/07_home_dark.png" width="22%" alt="تم تاریک" />
+</p>
 
 ## پشتهٔ فناوری
 

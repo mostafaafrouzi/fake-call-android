@@ -13,7 +13,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.RepeatMode
@@ -40,8 +40,8 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.CallEnd
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
-import androidx.compose.material.icons.filled.VolumeDown
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -82,7 +82,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 
-class IncomingCallActivity : ComponentActivity() {
+class IncomingCallActivity : AppCompatActivity() {
 
     private var ringtonePlayer: MediaPlayer? = null
     private var voicePlayer: MediaPlayer? = null
@@ -126,6 +126,7 @@ class IncomingCallActivity : ComponentActivity() {
                     photoPath = photoPath,
                     onAnswer = { answerCall() },
                     onDecline = { declineCall() },
+                    onTimeout = { onRingingTimeout() },
                     onEndCall = { duration -> endCall(duration) },
                     onSpeakerToggle = { on -> toggleSpeaker(on) },
                 )
@@ -308,6 +309,10 @@ class IncomingCallActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (!isCallFinished) {
+            isCallFinished = true
+            recordHistory(CallOutcome.MISSED, 0)
+        }
         stopRingtoneAndVibration()
         stopVoicePlayer()
         runCatching {
@@ -339,6 +344,7 @@ private fun IncomingCallScreen(
     photoPath: String?,
     onAnswer: () -> Unit,
     onDecline: () -> Unit,
+    onTimeout: () -> Unit,
     onEndCall: (Int) -> Unit,
     onSpeakerToggle: (Boolean) -> Unit,
 ) {
@@ -359,7 +365,7 @@ private fun IncomingCallScreen(
     LaunchedEffect(callState) {
         if (callState == CallState.RINGING) {
             delay(45_000L)
-            onDecline()
+            onTimeout()
         }
     }
 
@@ -493,7 +499,7 @@ private fun IncomingCallScreen(
                             )
 
                             CallControlButton(
-                                icon = if (isSpeakerOn) Icons.Filled.VolumeUp else Icons.Filled.VolumeDown,
+                                icon = if (isSpeakerOn) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeDown,
                                 label = stringResource(R.string.call_speaker),
                                 isActive = isSpeakerOn,
                                 onClick = {

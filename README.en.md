@@ -24,6 +24,21 @@ An Android app that schedules a realistic fake incoming call — with a caller n
 - Unlimited profiles with custom photo and voice
 - Live countdown for the scheduled call with cancel option
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/01_home_light.png" width="22%" alt="Home Screen" />
+  <img src="docs/screenshots/03_incoming_call.png" width="22%" alt="Incoming Call" />
+  <img src="docs/screenshots/04_active_call.png" width="22%" alt="Active Call" />
+  <img src="docs/screenshots/05_history_light.png" width="22%" alt="Call History" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/02_profiles_light.png" width="22%" alt="Profiles" />
+  <img src="docs/screenshots/06_settings_light.png" width="22%" alt="Settings" />
+  <img src="docs/screenshots/07_home_dark.png" width="22%" alt="Dark Theme" />
+</p>
+
 ## Tech stack
 
 | Area | Technology |

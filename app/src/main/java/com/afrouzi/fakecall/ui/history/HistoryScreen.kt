@@ -18,8 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.automirrored.filled.CallMissed
 import androidx.compose.material.icons.filled.CallEnd
-import androidx.compose.material.icons.filled.CallMissed
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
@@ -209,7 +209,7 @@ private fun HistoryItemCard(
             text = stringResource(R.string.history_outcome_missed),
             containerColor = Color(0xFFFEF3C7),
             contentColor = Color(0xFFB45309),
-            icon = Icons.Filled.CallMissed
+            icon = Icons.AutoMirrored.Filled.CallMissed
         )
         CallOutcome.CANCELLED -> OutcomeInfo(
             text = stringResource(R.string.history_outcome_cancelled),
