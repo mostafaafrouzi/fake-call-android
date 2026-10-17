@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">تماس ساختگی</string>
+    <string name="app_name_persian">تماس ساختگی (Fake Call)</string>
+    <string name="version_format">نسخهٔ %1$s</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">خانه</string>
+    <string name="nav_about">درباره ما</string>
+    <string name="nav_settings">تنظیمات</string>
+    <string name="nav_profiles">پروفایل‌ها</string>
+    <string name="nav_history">تاریخچه</string>
+
+    <!-- Call Experience -->
+    <string name="incoming_call_title">تماس ورودی</string>
+    <string name="incoming_call_answer">پاسخ</string>
+    <string name="incoming_call_decline">رد تماس</string>
+    <string name="call_ended">پایان تماس</string>
+    <string name="call_mute">بی‌صدا</string>
+    <string name="call_speaker">اسپیکر</string>
+    <string name="notification_channel_name">تماس‌های ساختگی ورودی</string>
+    <string name="notification_channel_desc">هشدارهای اولویت‌بالای تماس ساختگی ورودی</string>
+
+    <!-- Home Tab -->
+    <string name="home_title">زمان‌بندی تماس</string>
+    <string name="home_quick_schedule">زمان‌بندی سریع</string>
+    <string name="home_caller_source">مشخصات تماس‌گیرنده</string>
+    <string name="home_source_profile">پروفایل ذخیره‌شده</string>
+    <string name="home_source_adhoc">تماس‌گیرندهٔ دلخواه</string>
+    <string name="home_select_profile">انتخاب پروفایل</string>
+    <string name="home_caller_name_label">نام تماس‌گیرنده</string>
+    <string name="home_caller_name_placeholder">مثلاً مامان، مدیر</string>
+    <string name="home_caller_number_label">شماره تماس‌گیرنده</string>
+    <string name="home_caller_number_placeholder">مثلاً ۰۹۱۲۳۴۵۶۷۸۹</string>
+    <string name="home_delay_label">زمان زنگ خوردن</string>
+    <string name="home_delay_10s">۱۰ ثانیه</string>
+    <string name="home_delay_30s">۳۰ ثانیه</string>
+    <string name="home_delay_1m">۱ دقیقه</string>
+    <string name="home_delay_5m">۵ دقیقه</string>
+    <string name="home_delay_custom">زمان دلخواه</string>
+    <string name="home_custom_minutes">دقیقه</string>
+    <string name="home_custom_seconds">ثانیه</string>
+    <string name="home_button_schedule">زمان‌بندی تماس ساختگی</string>
+    <string name="home_pending_call_title">تماس زمان‌بندی‌شده فعال</string>
+    <string name="home_ringing_in">زنگ خوردن تا %1$d ثانیه دیگر</string>
+    <string name="home_button_cancel">لغو تماس</string>
+    <string name="home_call_scheduled_toast">تماس ساختگی زمان‌بندی شد</string>
+    <string name="home_call_cancelled_toast">تماس ساختگی لغو شد</string>
+    <string name="home_no_profiles_hint">هنوز پروفایلی ذخیره نشده است. می‌توانید در برگهٔ پروفایل‌ها ایجاد کنید.</string>
+
+    <!-- Permission Guidance -->
+    <string name="permission_notification_title">نیاز به مجوز اعلان</string>
+    <string name="permission_notification_desc">برنامه برای اعلام تماس زمان‌بندی‌شده و نمایش آن به مجوز اعلان نیاز دارد.</string>
+    <string name="permission_exact_alarm_title">نیاز به مجوز آلارم دقیق</string>
+    <string name="permission_exact_alarm_desc">برای اینکه تماس دقیقاً سر ثانیهٔ تعیین‌شده زنگ بخورد، حتی وقتی گوشی قفل یا به خواب رفته است، به مجوز آلارم دقیق نیاز است.</string>
+    <string name="permission_fullscreen_title">نیاز به مجوز نمایش تمام‌صفحه</string>
+    <string name="permission_fullscreen_desc">برای نمایش صفحهٔ تماس حتی زمانی که دستگاه قفل است، لطفاً مجوز نمایش تمام‌صفحه را در تنظیمات فعال کنید.</string>
+    <string name="dialog_action_grant">اعطای مجوز</string>
+    <string name="dialog_action_settings">باز کردن تنظیمات</string>
+    <string name="dialog_action_cancel">انصراف</string>
+    <string name="dialog_action_confirm">تأیید</string>
+
+    <!-- Profiles Tab -->
+    <string name="profiles_title">پروفایل‌های تماس‌گیرنده</string>
+    <string name="profiles_add_title">پروفایل جدید</string>
+    <string name="profiles_edit_title">ویرایش پروفایل</string>
+    <string name="profiles_name_label">نام</string>
+    <string name="profiles_number_label">شماره تلفن</string>
+    <string name="profiles_photo_section">تصویر پروفایل</string>
+    <string name="profiles_pick_photo">انتخاب تصویر</string>
+    <string name="profiles_change_photo">تغییر تصویر</string>
+    <string name="profiles_remove_photo">حذف تصویر</string>
+    <string name="profiles_voice_section">صدای ضبط‌شده</string>
+    <string name="profiles_pick_voice">انتخاب فایل صوتی</string>
+    <string name="profiles_change_voice">تغییر فایل صوتی</string>
+    <string name="profiles_remove_voice">حذف صدا</string>
+    <string name="profiles_voice_attached">فایل صوتی پیوست شد</string>
+    <string name="profiles_no_voice">بدون صدای ضبط‌شده</string>
+    <string name="profiles_ringtone_section">رینگتون</string>
+    <string name="profiles_pick_ringtone">انتخاب رینگتون</string>
+    <string name="profiles_default_ringtone">رینگتون پیش‌فرض دستگاه</string>
+    <string name="profiles_custom_ringtone">رینگتون اختصاصی</string>
+    <string name="profiles_button_save">ذخیرهٔ پروفایل</string>
+    <string name="profiles_delete_confirm_title">حذف پروفایل</string>
+    <string name="profiles_delete_confirm_desc">آیا از حذف این پروفایل تماس‌گیرنده اطمینان دارید؟</string>
+    <string name="profiles_delete_action">حذف</string>
+    <string name="profiles_empty_title">پروفایلی ذخیره نشده</string>
+    <string name="profiles_empty_desc">پروفایل‌های تماس‌گیرنده را با عکس، صدای ضبط‌شده و رینگتون دلخواه برای زمان‌بندی سریع بسازید.</string>
+
+    <!-- History Tab -->
+    <string name="history_title">سابقهٔ تماس‌ها</string>
+    <string name="history_clear_all">پاک‌کردن سابقه</string>
+    <string name="history_clear_confirm_title">پاک‌کردن کل سابقه</string>
+    <string name="history_clear_confirm_desc">آیا از حذف تمامی سوابق تماس‌های ساختگی اطمینان دارید؟</string>
+    <string name="history_empty_title">سابقهٔ تماسی وجود ندارد</string>
+    <string name="history_empty_desc">تماس‌های ساختگی اجراشده و وضعیت آن‌ها در اینجا نمایش داده می‌شوند.</string>
+    <string name="history_outcome_answered">پاسخ داده شد</string>
+    <string name="history_outcome_declined">رد شد</string>
+    <string name="history_outcome_missed">از دست رفته</string>
+    <string name="history_outcome_cancelled">لغو شد</string>
+    <string name="history_duration">مدت مکالمه: %1$d ثانیه</string>
+
+    <!-- Settings Tab -->
+    <string name="settings_title">تنظیمات</string>
+    <string name="settings_theme_section">پوستهٔ برنامه</string>
+    <string name="settings_theme_system">هماهنگ با سیستم</string>
+    <string name="settings_theme_light">روشن</string>
+    <string name="settings_theme_dark">تاریک</string>
+    <string name="settings_language_section">زبان برنامه</string>
+    <string name="settings_language_system">هماهنگ با سیستم</string>
+    <string name="settings_language_persian">فارسی</string>
+    <string name="settings_language_english">English (انگلیسی)</string>
+
+    <!-- Errors -->
+    <string name="error_fill_required_fields">لطفاً نام و شمارهٔ معتبر تماس‌گیرنده را وارد کنید.</string>
+
+    <!-- About -->
+    <string name="about_title">درباره تماس ساختگی</string>
+    <string name="about_app_desc">تماس ساختگی یک تماس ورودی واقع‌گرایانه را با نام، شماره و عکس دلخواه شما، دقیقاً در زمانی که لازم دارید زمان‌بندی می‌کند؛ راهی مؤدبانه برای خروج از جلسه‌ها و موقعیت‌های ناخوشایند. همه‌چیز کاملاً آفلاین و روی گوشی خودتان اجرا می‌شود؛ بدون حساب کاربری، بدون اینترنت و بدون هیچ ردیابی.</string>
+    <string name="about_ownership_title">ساخته‌شده با اندروید مدرن</string>
+    <string name="about_ownership_desc">تماس ساختگی یک برنامه بومی اندروید است که با کاتلین و جت‌پک کامپوز و معماری مدرن و قابل نگه‌داری ساخته شده است. زمان‌بندی دقیق با آلارم دقیق و نمایش تمام‌صفحه تماس ورودی انجام می‌شود تا تماس سر وقت زنگ بخورد، حتی وقتی برنامه بسته است یا گوشی قفل است.</string>
+    <string name="developer_title">توسعه‌دهنده</string>
+    <string name="developer_name">مصطفی افروزی</string>
+    <string name="developer_headline">توسعه‌دهنده اندروید</string>
+    <string name="developer_bio">توسعه‌دهنده مستقل اندروید؛ سازنده برنامه‌های کوچک، صادقانه و حریم‌خصوصی‌محور. همه برنامه‌ها متن‌باز هستند و تا حد امکان کاملاً آفلاین کار می‌کنند.</string>
+    <string name="link_myket">صفحهٔ توسعه‌دهنده در مایکت</string>
+    <string name="link_bazaar">صفحهٔ توسعه‌دهنده در کافه‌بازار</string>
+    <string name="link_repo">کد منبع این برنامه در گیت‌هاب</string>
+    <string name="open_source_notice">تماس ساختگی نرم‌افزاری آزاد و متن‌باز است.</string>
+</resources>

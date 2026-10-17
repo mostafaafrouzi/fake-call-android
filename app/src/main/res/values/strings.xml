@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fake Call</string>
+    <string name="app_name_persian">Fake Call (تماس ساختگی)</string>
+    <string name="version_format">Version %1$s</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_about">About</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_profiles">Profiles</string>
+    <string name="nav_history">History</string>
+
+    <!-- Call Experience -->
+    <string name="incoming_call_title">Incoming call</string>
+    <string name="incoming_call_answer">Answer</string>
+    <string name="incoming_call_decline">Decline</string>
+    <string name="call_ended">End call</string>
+    <string name="call_mute">Mute</string>
+    <string name="call_speaker">Speaker</string>
+    <string name="notification_channel_name">Incoming Fake Calls</string>
+    <string name="notification_channel_desc">High-priority incoming fake call alerts</string>
+
+    <!-- Home Tab -->
+    <string name="home_title">Schedule Call</string>
+    <string name="home_quick_schedule">Quick Schedule</string>
+    <string name="home_caller_source">Caller Information</string>
+    <string name="home_source_profile">Saved Profile</string>
+    <string name="home_source_adhoc">Ad-hoc Caller</string>
+    <string name="home_select_profile">Select a profile</string>
+    <string name="home_caller_name_label">Caller Name</string>
+    <string name="home_caller_name_placeholder">e.g. Mom, Boss</string>
+    <string name="home_caller_number_label">Caller Number</string>
+    <string name="home_caller_number_placeholder">e.g. +1 555 123 4567</string>
+    <string name="home_delay_label">Ring Delay</string>
+    <string name="home_delay_10s">10s</string>
+    <string name="home_delay_30s">30s</string>
+    <string name="home_delay_1m">1m</string>
+    <string name="home_delay_5m">5m</string>
+    <string name="home_delay_custom">Custom</string>
+    <string name="home_custom_minutes">Minutes</string>
+    <string name="home_custom_seconds">Seconds</string>
+    <string name="home_button_schedule">Schedule Fake Call</string>
+    <string name="home_pending_call_title">Scheduled Call Active</string>
+    <string name="home_ringing_in">Ringing in %1$d seconds</string>
+    <string name="home_button_cancel">Cancel Call</string>
+    <string name="home_call_scheduled_toast">Fake call scheduled</string>
+    <string name="home_call_cancelled_toast">Fake call cancelled</string>
+    <string name="home_no_profiles_hint">No profiles saved yet. You can add one in the Profiles tab.</string>
+
+    <!-- Permission Guidance -->
+    <string name="permission_notification_title">Notification Permission Required</string>
+    <string name="permission_notification_desc">Fake Call needs notification permission to alert you when your scheduled call triggers.</string>
+    <string name="permission_exact_alarm_title">Exact Alarm Permission Required</string>
+    <string name="permission_exact_alarm_desc">To ring at the exact second you choose even while the phone is locked or asleep, Fake Call needs exact alarm permission.</string>
+    <string name="permission_fullscreen_title">Full Screen Intent Permission Required</string>
+    <string name="permission_fullscreen_desc">To display the full-screen incoming call UI directly over the lock screen, please allow full-screen intent in settings.</string>
+    <string name="dialog_action_grant">Grant Permission</string>
+    <string name="dialog_action_settings">Open Settings</string>
+    <string name="dialog_action_cancel">Cancel</string>
+    <string name="dialog_action_confirm">Confirm</string>
+
+    <!-- Profiles Tab -->
+    <string name="profiles_title">Caller Profiles</string>
+    <string name="profiles_add_title">New Profile</string>
+    <string name="profiles_edit_title">Edit Profile</string>
+    <string name="profiles_name_label">Name</string>
+    <string name="profiles_number_label">Phone Number</string>
+    <string name="profiles_photo_section">Profile Photo</string>
+    <string name="profiles_pick_photo">Choose Photo</string>
+    <string name="profiles_change_photo">Change Photo</string>
+    <string name="profiles_remove_photo">Remove Photo</string>
+    <string name="profiles_voice_section">Voice Recording</string>
+    <string name="profiles_pick_voice">Choose Audio File</string>
+    <string name="profiles_change_voice">Change Audio File</string>
+    <string name="profiles_remove_voice">Remove Voice</string>
+    <string name="profiles_voice_attached">Audio file attached</string>
+    <string name="profiles_no_voice">No voice recording</string>
+    <string name="profiles_ringtone_section">Ringtone</string>
+    <string name="profiles_pick_ringtone">Choose Ringtone</string>
+    <string name="profiles_default_ringtone">Device Default Ringtone</string>
+    <string name="profiles_custom_ringtone">Custom Ringtone</string>
+    <string name="profiles_button_save">Save Profile</string>
+    <string name="profiles_delete_confirm_title">Delete Profile</string>
+    <string name="profiles_delete_confirm_desc">Are you sure you want to delete this caller profile?</string>
+    <string name="profiles_delete_action">Delete</string>
+    <string name="profiles_empty_title">No Profiles Saved</string>
+    <string name="profiles_empty_desc">Create caller profiles with custom photos, voice recordings, and ringtones for quick scheduling.</string>
+
+    <!-- History Tab -->
+    <string name="history_title">Call History</string>
+    <string name="history_clear_all">Clear History</string>
+    <string name="history_clear_confirm_title">Clear All History</string>
+    <string name="history_clear_confirm_desc">Are you sure you want to delete all past fake call history?</string>
+    <string name="history_empty_title">No Call History</string>
+    <string name="history_empty_desc">Past fake calls and their outcomes will appear here.</string>
+    <string name="history_outcome_answered">Answered</string>
+    <string name="history_outcome_declined">Declined</string>
+    <string name="history_outcome_missed">Missed</string>
+    <string name="history_outcome_cancelled">Cancelled</string>
+    <string name="history_duration">Duration: %1$ds</string>
+
+    <!-- Settings Tab -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme_section">Appearance</string>
+    <string name="settings_theme_system">System Default</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_language_section">Language</string>
+    <string name="settings_language_system">System Default</string>
+    <string name="settings_language_persian">فارسی (Persian)</string>
+    <string name="settings_language_english">English</string>
+
+    <!-- Errors -->
+    <string name="error_fill_required_fields">Please enter a valid caller name and number.</string>
+
+    <!-- About -->
+    <string name="about_title">About Fake Call</string>
+    <string name="about_app_desc">Fake Call schedules a realistic incoming call with a caller name, number and photo that you choose, exactly when you need it — a polite way out of meetings and awkward situations. Everything runs fully offline on your own device; no account, no internet, no tracking.</string>
+    <string name="about_ownership_title">Built on modern Android</string>
+    <string name="about_ownership_desc">Fake Call is a native Android app built with Kotlin and Jetpack Compose on a modern, maintainable architecture. Precise scheduling uses exact alarms with a full-screen incoming-call experience, so the call rings on time even when the app is closed or the phone is locked.</string>
+    <string name="developer_title">Developer</string>
+    <string name="developer_name">Mostafa Afrouzi</string>
+    <string name="developer_headline">Android Developer</string>
+    <string name="developer_bio">Independent Android developer building small, honest, privacy-friendly apps. Every app is open source and works fully offline wherever possible.</string>
+    <string name="link_myket">Developer page on Myket</string>
+    <string name="link_bazaar">Developer page on Cafe Bazaar</string>
+    <string name="link_repo">Source code of this app on GitHub</string>
+    <string name="open_source_notice">Fake Call is free and open source software.</string>
+</resources>
