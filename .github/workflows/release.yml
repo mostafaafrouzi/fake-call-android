@@ -1,0 +1,112 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Accept Android SDK licenses
+      run: yes | sdkmanager --licenses || true
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Require signing secrets
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      run: |
+        if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ] || [ -z "$KEY_ALIAS" ]; then
+          echo "Missing KEYSTORE_BASE64 / KEYSTORE_PASSWORD / KEY_PASSWORD / KEY_ALIAS secrets in repository settings."
+          exit 1
+        fi
+
+    - name: Write signing files
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      run: |
+        mkdir -p keystore
+        echo "$KEYSTORE_BASE64" | base64 -d > keystore/fakecall-release.jks
+        if [ ! -s keystore/fakecall-release.jks ]; then
+          echo "Failed to decode keystore"
+          exit 1
+        fi
+        printf '%s\n' \
+          "storeFile=keystore/fakecall-release.jks" \
+          "storePassword=$KEYSTORE_PASSWORD" \
+          "keyAlias=$KEY_ALIAS" \
+          "keyPassword=$KEY_PASSWORD" > keystore.properties
+
+    - name: Build signed release APK and AAB for Bazaar and Myket
+      run: ./gradlew assembleBazaarRelease assembleMyketRelease bundleBazaarRelease bundleMyketRelease --stacktrace
+
+    - name: Verify signatures
+      run: |
+        APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort | tail -n 1)
+        "$APKSIGNER" verify --verbose app/build/outputs/apk/bazaar/release/app-bazaar-release.apk
+        "$APKSIGNER" verify --verbose app/build/outputs/apk/myket/release/app-myket-release.apk
+        jarsigner -verify -verbose -certs app/build/outputs/bundle/bazaarRelease/app-bazaar-release.aab
+        jarsigner -verify -verbose -certs app/build/outputs/bundle/myketRelease/app-myket-release.aab
+
+    - name: Get version
+      id: get_version
+      run: |
+        if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+        else
+          NAME=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts | head -1)
+          echo "VERSION=v${NAME}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Name artifacts
+      run: |
+        mkdir -p dist
+        cp app/build/outputs/apk/bazaar/release/app-bazaar-release.apk \
+           "dist/fakecall-bazaar-${{ steps.get_version.outputs.VERSION }}.apk"
+        cp app/build/outputs/bundle/bazaarRelease/app-bazaar-release.aab \
+           "dist/fakecall-bazaar-${{ steps.get_version.outputs.VERSION }}.aab"
+        cp app/build/outputs/apk/myket/release/app-myket-release.apk \
+           "dist/fakecall-myket-${{ steps.get_version.outputs.VERSION }}.apk"
+        cp app/build/outputs/bundle/myketRelease/app-myket-release.aab \
+           "dist/fakecall-myket-${{ steps.get_version.outputs.VERSION }}.aab"
+        rm -f keystore/fakecall-release.jks keystore.properties
+
+    - name: Upload workflow artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: fakecall-${{ steps.get_version.outputs.VERSION }}
+        path: dist/*
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/*
+        draft: false
+        prerelease: ${{ contains(github.ref_name, '-') }}
+        generate_release_notes: false
+        name: تماس ساختگی / Fake Call ${{ github.ref_name }}
+        body_path: .github/release-notes.md
