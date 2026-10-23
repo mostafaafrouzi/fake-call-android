@@ -7,6 +7,7 @@ import androidx.core.os.LocaleListCompat
 import com.afrouzi.fakecall.data.db.FakeCallDatabase
 import com.afrouzi.fakecall.data.prefs.AppLanguage
 import com.afrouzi.fakecall.data.prefs.SettingsRepository
+import com.afrouzi.fakecall.data.repository.AudioRecorderHelper
 import com.afrouzi.fakecall.data.repository.CallHistoryRepository
 import com.afrouzi.fakecall.data.repository.CallerProfileRepository
 import com.afrouzi.fakecall.data.repository.ProfileMediaManager
@@ -40,12 +41,19 @@ class FakeCallApplication : Application() {
     lateinit var callScheduler: CallScheduler
         private set
 
+    lateinit var mediaManager: ProfileMediaManager
+        private set
+
+    lateinit var audioRecorderHelper: AudioRecorderHelper
+        private set
+
     override fun onCreate() {
         super.onCreate()
         settingsRepository = SettingsRepository(this)
         database = FakeCallDatabase.getInstance(this)
 
-        val mediaManager = ProfileMediaManager(this)
+        mediaManager = ProfileMediaManager(this)
+        audioRecorderHelper = AudioRecorderHelper(this)
         profileRepository = CallerProfileRepository(database.callerProfileDao(), mediaManager)
         scheduleRepository = ScheduledCallRepository(database.scheduledCallDao())
         historyRepository = CallHistoryRepository(database.callHistoryDao())

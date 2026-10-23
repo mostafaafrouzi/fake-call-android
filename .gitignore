@@ -48,3 +48,7 @@ logcat.txt
 
 # Local AI context files
 /localfile/
+
+# Root temporary test artifacts
+/*.png
+/ui_*.xml

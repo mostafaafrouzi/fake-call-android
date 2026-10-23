@@ -30,14 +30,16 @@
     <string name="home_select_profile">انتخاب پروفایل</string>
     <string name="home_caller_name_label">نام تماس‌گیرنده</string>
     <string name="home_caller_name_placeholder">مثلاً مامان، مدیر</string>
+    <string name="home_default_caller_name">ناشناس</string>
     <string name="home_caller_number_label">شماره تماس‌گیرنده</string>
     <string name="home_caller_number_placeholder">مثلاً ۰۹۱۲۳۴۵۶۷۸۹</string>
+    <string name="home_default_caller_number">۰۹۱۲۳۴۵۶۷۸۹</string>
     <string name="home_delay_label">زمان زنگ خوردن</string>
     <string name="home_delay_10s">۱۰ ثانیه</string>
     <string name="home_delay_30s">۳۰ ثانیه</string>
     <string name="home_delay_1m">۱ دقیقه</string>
     <string name="home_delay_5m">۵ دقیقه</string>
-    <string name="home_delay_custom">زمان دلخواه</string>
+    <string name="home_delay_custom">سفارشی</string>
     <string name="home_custom_minutes">دقیقه</string>
     <string name="home_custom_seconds">ثانیه</string>
     <string name="home_button_schedule">زمان‌بندی تماس ساختگی</string>
@@ -127,4 +129,63 @@
     <string name="link_bazaar">صفحهٔ توسعه‌دهنده در کافه‌بازار</string>
     <string name="link_repo">کد منبع این برنامه در گیت‌هاب</string>
     <string name="open_source_notice">تماس ساختگی نرم‌افزاری آزاد و متن‌باز است.</string>
+
+    <!-- Permissions Architecture -->
+    <string name="permissions_banner_title">دسترسی‌های لازم برای اجرای تماس</string>
+    <string name="permissions_banner_desc">برای اینکه تماس ساختگی حتی در زمان قفل بودن صفحه و بسته بودن برنامه سر وقت زنگ بخورد، این دسترسی‌ها را فعال کنید:</string>
+    <string name="permissions_grant_notifications">اعلان‌ها</string>
+    <string name="permissions_grant_exact_alarm">آلارم دقیق</string>
+    <string name="permissions_grant_full_screen">نمایش تمام‌صفحه</string>
+    <string name="permissions_status_section">وضعیت دسترسی‌ها</string>
+    <string name="permissions_all_granted">تمامی دسترسی‌ها فعال است</string>
+    <string name="permissions_status_active_desc">سامانه آلارم دقیق، اعلان‌ها و نمایش روی صفحه قفل به‌طور کامل فعال است.</string>
+
+    <!-- Save Adhoc Profile Dialog -->
+    <string name="dialog_save_profile_title">ذخیره در پروفایل‌ها؟</string>
+    <string name="dialog_save_profile_message">آیا می‌خواهید این مخاطب برای استفاده‌های بعدی در پروفایل‌ها ذخیره شود؟</string>
+    <string name="dialog_save_and_start">ذخیره و شروع</string>
+    <string name="dialog_start_only">فقط شروع</string>
+    <string name="dialog_dont_ask_again">دیگر نمایش نده</string>
+    <string name="settings_ask_save_adhoc">پرسش برای ذخیره مخاطب در تماس فوری</string>
+
+    <!-- Profiles Audio & Contact Import -->
+    <string name="profiles_pick_contact">انتخاب از مخاطبین</string>
+    <string name="profiles_record_voice">ضبط صدا با میکروفون</string>
+    <string name="profiles_recording_in_progress">در حال ضبط صدا…</string>
+    <string name="profiles_recording_stop">توقف</string>
+    <string name="profiles_recording_preview">پخش</string>
+    <string name="profiles_recording_delete">حذف</string>
+    <string name="profiles_recording_permission_denied">برای ضبط صدا، مجوز دسترسی به میکروفون الزامی است.</string>
+
+    <!-- Call Screen Themes & Keypad -->
+    <string name="settings_call_theme_section">پوستهٔ صفحهٔ تماس</string>
+    <string name="settings_call_theme_one_ui">سامسونگ (One UI)</string>
+    <string name="settings_call_theme_hyper_os">شیائومی (HyperOS)</string>
+    <string name="settings_call_theme_pixel">گوگل (Pixel / Material You)</string>
+    <string name="call_swipe_to_answer">برای پاسخ بکشید</string>
+    <string name="call_swipe_to_decline">برای رد تماس بکشید</string>
+    <string name="call_swipe_up_answer">سوایپ به بالا برای پاسخ</string>
+    <string name="call_send_message">ارسال پیام</string>
+    <string name="call_quick_reply">پاسخ سریع با پیام</string>
+    <string name="call_keypad">صفحه‌کلید</string>
+    <string name="call_keypad_close">بستن</string>
+
+    <!-- Missed Call Notification -->
+    <string name="notification_missed_call_channel">تماس‌های بی‌پاسخ</string>
+    <string name="notification_missed_call_channel_desc">اعلان‌های مربوط به تماس‌های ساختگی از دست رفته</string>
+    <string name="notification_missed_call_title">تماس بی‌پاسخ</string>
+    <string name="notification_missed_call_text">تماس از طرف %1$s</string>
+
+    <!-- Quick Settings Tile -->
+    <string name="tile_emergency_call">تماس اضطراری (۲۰ ثانیه)</string>
+    <string name="tile_call_scheduled">تماس ساختگی ۲۰ ثانیه دیگر زنگ می‌خورد</string>
+
+    <!-- App Widget -->
+    <string name="widget_name">تماس ساختگی سریع</string>
+    <string name="widget_configure_title">تنظیمات ویجت تماس ساختگی</string>
+    <string name="widget_select_profile">انتخاب پروفایل:</string>
+    <string name="widget_select_delay">زمان زنگ خوردن:</string>
+    <string name="widget_save_button">افزودن ویجت به صفحه</string>
+    <string name="widget_tap_to_call">لمس برای شروع تماس</string>
+    <string name="widget_scheduled_toast">تماس از طرف %1$s برای %2$s دیگر زمان‌بندی شد</string>
 </resources>

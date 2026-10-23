@@ -30,8 +30,10 @@
     <string name="home_select_profile">Select a profile</string>
     <string name="home_caller_name_label">Caller Name</string>
     <string name="home_caller_name_placeholder">e.g. Mom, Boss</string>
+    <string name="home_default_caller_name">Unknown</string>
     <string name="home_caller_number_label">Caller Number</string>
     <string name="home_caller_number_placeholder">e.g. +1 555 123 4567</string>
+    <string name="home_default_caller_number">+1 555 0199</string>
     <string name="home_delay_label">Ring Delay</string>
     <string name="home_delay_10s">10s</string>
     <string name="home_delay_30s">30s</string>
@@ -127,4 +129,63 @@
     <string name="link_bazaar">Developer page on Cafe Bazaar</string>
     <string name="link_repo">Source code of this app on GitHub</string>
     <string name="open_source_notice">Fake Call is free and open source software.</string>
+
+    <!-- Permissions Architecture -->
+    <string name="permissions_banner_title">Permissions Required for Call Scheduling</string>
+    <string name="permissions_banner_desc">To allow fake calls to ring on time when the screen is locked or the app is closed, please grant these permissions:</string>
+    <string name="permissions_grant_notifications">Notifications</string>
+    <string name="permissions_grant_exact_alarm">Exact Alarm</string>
+    <string name="permissions_grant_full_screen">Full-Screen Intent</string>
+    <string name="permissions_status_section">Permissions Status</string>
+    <string name="permissions_all_granted">All permissions are active</string>
+    <string name="permissions_status_active_desc">Exact alarm, notification, and lock-screen display permissions are fully granted.</string>
+
+    <!-- Save Adhoc Profile Dialog -->
+    <string name="dialog_save_profile_title">Save Caller Profile?</string>
+    <string name="dialog_save_profile_message">Would you like to save this contact to your profiles for future quick calls?</string>
+    <string name="dialog_save_and_start">Save &amp; Start</string>
+    <string name="dialog_start_only">Start Only</string>
+    <string name="dialog_dont_ask_again">Don\'t ask again</string>
+    <string name="settings_ask_save_adhoc">Ask to save caller in ad-hoc calls</string>
+
+    <!-- Profiles Audio & Contact Import -->
+    <string name="profiles_pick_contact">Pick from Contacts</string>
+    <string name="profiles_record_voice">Record Voice</string>
+    <string name="profiles_recording_in_progress">Recording audio…</string>
+    <string name="profiles_recording_stop">Stop</string>
+    <string name="profiles_recording_preview">Play</string>
+    <string name="profiles_recording_delete">Delete</string>
+    <string name="profiles_recording_permission_denied">Microphone permission is required to record voice.</string>
+
+    <!-- Call Screen Themes & Keypad -->
+    <string name="settings_call_theme_section">Call Screen Style</string>
+    <string name="settings_call_theme_one_ui">Samsung (One UI)</string>
+    <string name="settings_call_theme_hyper_os">Xiaomi (HyperOS)</string>
+    <string name="settings_call_theme_pixel">Google (Pixel / Material You)</string>
+    <string name="call_swipe_to_answer">Swipe to answer</string>
+    <string name="call_swipe_to_decline">Swipe to decline</string>
+    <string name="call_swipe_up_answer">Swipe up to answer</string>
+    <string name="call_send_message">Send message</string>
+    <string name="call_quick_reply">Quick reply</string>
+    <string name="call_keypad">Keypad</string>
+    <string name="call_keypad_close">Close</string>
+
+    <!-- Missed Call Notification -->
+    <string name="notification_missed_call_channel">Missed Calls</string>
+    <string name="notification_missed_call_channel_desc">Notifications for missed fake calls</string>
+    <string name="notification_missed_call_title">Missed Call</string>
+    <string name="notification_missed_call_text">Missed call from %1$s</string>
+
+    <!-- Quick Settings Tile -->
+    <string name="tile_emergency_call">Emergency Call (20s)</string>
+    <string name="tile_call_scheduled">Fake call scheduled in 20 seconds</string>
+
+    <!-- App Widget -->
+    <string name="widget_name">Quick Fake Call</string>
+    <string name="widget_configure_title">Configure Quick Call Widget</string>
+    <string name="widget_select_profile">Select Profile:</string>
+    <string name="widget_select_delay">Call Delay:</string>
+    <string name="widget_save_button">Add Widget</string>
+    <string name="widget_tap_to_call">Tap to Call</string>
+    <string name="widget_scheduled_toast">Fake call from %1$s scheduled in %2$s</string>
 </resources>

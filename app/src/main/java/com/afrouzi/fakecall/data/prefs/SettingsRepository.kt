@@ -20,6 +20,8 @@ class SettingsRepository(private val context: Context) {
     private val KEY_DIGITS = stringPreferencesKey("digits")
     private val KEY_VIEW_MODE = stringPreferencesKey("view_mode")
     private val KEY_SHOW_SYSTEM = booleanPreferencesKey("show_system_apps")
+    private val KEY_CALL_THEME = stringPreferencesKey("call_theme")
+    private val KEY_ASK_SAVE_ADHOC = booleanPreferencesKey("ask_save_adhoc")
 
     val settings: Flow<AppSettings> = context.dataStore.data.map { prefs ->
         AppSettings(
@@ -39,6 +41,10 @@ class SettingsRepository(private val context: Context) {
                 ViewMode.valueOf(prefs[KEY_VIEW_MODE] ?: ViewMode.CASUAL.name)
             }.getOrDefault(ViewMode.CASUAL),
             showSystemApps = prefs[KEY_SHOW_SYSTEM] ?: false,
+            callTheme = runCatching {
+                CallTheme.valueOf(prefs[KEY_CALL_THEME] ?: CallTheme.ONE_UI.name)
+            }.getOrDefault(CallTheme.ONE_UI),
+            askSaveProfileOnAdhoc = prefs[KEY_ASK_SAVE_ADHOC] ?: true,
         )
     }
 
@@ -64,5 +70,13 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setShowSystemApps(show: Boolean) {
         context.dataStore.edit { it[KEY_SHOW_SYSTEM] = show }
+    }
+
+    suspend fun setCallTheme(theme: CallTheme) {
+        context.dataStore.edit { it[KEY_CALL_THEME] = theme.name }
+    }
+
+    suspend fun setAskSaveProfileOnAdhoc(ask: Boolean) {
+        context.dataStore.edit { it[KEY_ASK_SAVE_ADHOC] = ask }
     }
 }

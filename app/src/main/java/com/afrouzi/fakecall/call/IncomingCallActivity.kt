@@ -1,7 +1,15 @@
 package com.afrouzi.fakecall.call
 
 import android.app.KeyguardManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -9,20 +17,20 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,20 +42,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.CallEnd
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.CallEnd
+import androidx.compose.material.icons.filled.Dialpad
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MicOff
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -67,14 +78,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import coil.compose.AsyncImage
 import com.afrouzi.fakecall.FakeCallApplication
 import com.afrouzi.fakecall.R
+import com.afrouzi.fakecall.call.theme.PixelIncomingCallUi
+import com.afrouzi.fakecall.call.theme.SamsungIncomingCallUi
+import com.afrouzi.fakecall.call.theme.XiaomiIncomingCallUi
 import com.afrouzi.fakecall.data.model.CallHistoryItem
 import com.afrouzi.fakecall.data.model.CallOutcome
 import com.afrouzi.fakecall.data.prefs.AppSettings
+import com.afrouzi.fakecall.data.prefs.CallTheme
 import com.afrouzi.fakecall.scheduling.CallAlarmReceiver
+import com.afrouzi.fakecall.ui.MainActivity
 import com.afrouzi.fakecall.ui.theme.FakeCallTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -88,6 +105,12 @@ class IncomingCallActivity : AppCompatActivity() {
     private var voicePlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
     private var audioManager: AudioManager? = null
+
+    private var proximityWakeLock: PowerManager.WakeLock? = null
+    private var sensorManager: SensorManager? = null
+    private var proximitySensor: Sensor? = null
+    private var proximityListener: SensorEventListener? = null
+    private var isNearEarState = mutableStateOf(false)
 
     private var callerName: String = ""
     private var callerNumber: String = ""
@@ -118,18 +141,31 @@ class IncomingCallActivity : AppCompatActivity() {
 
         setContent {
             val settings by app.settingsRepository.settings.collectAsState(initial = AppSettings())
+            val isNearEar by isNearEarState
 
             FakeCallTheme(settings = settings) {
-                IncomingCallScreen(
-                    callerName = callerName,
-                    callerNumber = callerNumber,
-                    photoPath = photoPath,
-                    onAnswer = { answerCall() },
-                    onDecline = { declineCall() },
-                    onTimeout = { onRingingTimeout() },
-                    onEndCall = { duration -> endCall(duration) },
-                    onSpeakerToggle = { on -> toggleSpeaker(on) },
-                )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    IncomingCallScreen(
+                        settings = settings,
+                        callerName = callerName,
+                        callerNumber = callerNumber,
+                        photoPath = photoPath,
+                        onAnswer = { answerCall() },
+                        onDecline = { declineCall() },
+                        onTimeout = { onRingingTimeout() },
+                        onEndCall = { duration -> endCall(duration) },
+                        onSpeakerToggle = { on -> toggleSpeaker(on) },
+                    )
+
+                    // Blackout overlay when phone is held to ear
+                    if (isNearEar) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black)
+                        )
+                    }
+                }
             }
         }
     }
@@ -152,12 +188,10 @@ class IncomingCallActivity : AppCompatActivity() {
     }
 
     private fun startRingtoneAndVibration() {
-        // Dismiss the incoming call notification now that the activity is in foreground
         runCatching {
             NotificationManagerCompat.from(this).cancel(CallAlarmReceiver.NOTIFICATION_ID)
         }
 
-        // Start ringtone
         val ringtoneUri = ringtoneUriString?.let { Uri.parse(it) }
             ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
 
@@ -175,7 +209,6 @@ class IncomingCallActivity : AppCompatActivity() {
                 start()
             }
         }.onFailure {
-            // Fallback to default ringtone if custom URI failed
             runCatching {
                 val fallbackUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
                 ringtonePlayer = MediaPlayer().apply {
@@ -193,7 +226,6 @@ class IncomingCallActivity : AppCompatActivity() {
             }
         }
 
-        // Start vibration
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
             vibratorManager?.defaultVibrator
@@ -227,7 +259,44 @@ class IncomingCallActivity : AppCompatActivity() {
     private fun answerCall() {
         stopRingtoneAndVibration()
 
-        // Start voice playback if file exists
+        // 1. Audio Routing: Set mode to IN_CALL and route to Earpiece by default
+        runCatching {
+            audioManager?.mode = AudioManager.MODE_IN_CALL
+            @Suppress("DEPRECATION")
+            audioManager?.isSpeakerphoneOn = false
+        }
+
+        // 2. Proximity sensor: Turn screen off when held to ear
+        runCatching {
+            val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            if (pm?.isWakeLockLevelSupported(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK) == true) {
+                proximityWakeLock = pm.newWakeLock(
+                    PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK,
+                    "fakecall:proximity"
+                ).apply {
+                    acquire(60 * 60 * 1000L)
+                }
+            }
+        }
+
+        // Software proximity fallback listener
+        runCatching {
+            sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+            proximitySensor = sensorManager?.getDefaultSensor(Sensor.TYPE_PROXIMITY)
+            if (proximitySensor != null) {
+                proximityListener = object : SensorEventListener {
+                    override fun onSensorChanged(event: SensorEvent?) {
+                        val distance = event?.values?.getOrNull(0) ?: return
+                        val max = proximitySensor?.maximumRange ?: 5f
+                        isNearEarState.value = (distance < max && distance < 4f)
+                    }
+                    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+                }
+                sensorManager?.registerListener(proximityListener, proximitySensor, SensorManager.SENSOR_DELAY_UI)
+            }
+        }
+
+        // 3. Play voice recording
         val path = voicePath
         if (!path.isNullOrBlank()) {
             runCatching {
@@ -255,6 +324,7 @@ class IncomingCallActivity : AppCompatActivity() {
         isCallFinished = true
         stopRingtoneAndVibration()
         recordHistory(CallOutcome.DECLINED, 0)
+        showMissedCallNotification()
         finish()
     }
 
@@ -263,31 +333,85 @@ class IncomingCallActivity : AppCompatActivity() {
         isCallFinished = true
         stopRingtoneAndVibration()
         recordHistory(CallOutcome.MISSED, 0)
+        showMissedCallNotification()
         finish()
     }
 
     private fun endCall(durationSec: Int) {
         if (isCallFinished) return
         isCallFinished = true
-        stopVoicePlayer()
+        cleanupCallHardware()
         recordHistory(CallOutcome.ANSWERED, durationSec)
         finish()
     }
 
     private fun toggleSpeaker(enable: Boolean) {
         runCatching {
+            @Suppress("DEPRECATION")
             audioManager?.isSpeakerphoneOn = enable
         }
     }
 
-    private fun stopVoicePlayer() {
+    private fun cleanupCallHardware() {
         runCatching {
             voicePlayer?.stop()
             voicePlayer?.release()
             voicePlayer = null
         }
         runCatching {
+            @Suppress("DEPRECATION")
             audioManager?.isSpeakerphoneOn = false
+            audioManager?.mode = AudioManager.MODE_NORMAL
+        }
+        runCatching {
+            proximityWakeLock?.let {
+                if (it.isHeld) it.release()
+            }
+            proximityWakeLock = null
+        }
+        runCatching {
+            proximityListener?.let { sensorManager?.unregisterListener(it) }
+            proximityListener = null
+        }
+        isNearEarState.value = false
+    }
+
+    private fun showMissedCallNotification() {
+        val channelId = "missed_calls"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+            val channel = NotificationChannel(
+                channelId,
+                getString(R.string.notification_missed_call_channel),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = getString(R.string.notification_missed_call_channel_desc)
+            }
+            nm?.createNotificationChannel(channel)
+        }
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("open_tab", "history")
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            System.currentTimeMillis().toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(android.R.drawable.stat_notify_missed_call)
+            .setContentTitle(getString(R.string.notification_missed_call_title))
+            .setContentText(getString(R.string.notification_missed_call_text, callerName))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        runCatching {
+            NotificationManagerCompat.from(this).notify(System.currentTimeMillis().toInt(), notification)
         }
     }
 
@@ -312,9 +436,10 @@ class IncomingCallActivity : AppCompatActivity() {
         if (!isCallFinished) {
             isCallFinished = true
             recordHistory(CallOutcome.MISSED, 0)
+            showMissedCallNotification()
         }
         stopRingtoneAndVibration()
-        stopVoicePlayer()
+        cleanupCallHardware()
         runCatching {
             NotificationManagerCompat.from(this).cancel(CallAlarmReceiver.NOTIFICATION_ID)
         }
@@ -339,6 +464,7 @@ private enum class CallState {
 
 @Composable
 private fun IncomingCallScreen(
+    settings: AppSettings,
     callerName: String,
     callerNumber: String,
     photoPath: String?,
@@ -352,8 +478,8 @@ private fun IncomingCallScreen(
     var callDurationSeconds by remember { mutableIntStateOf(0) }
     var isMuted by remember { mutableStateOf(false) }
     var isSpeakerOn by remember { mutableStateOf(false) }
+    var showDialpad by remember { mutableStateOf(false) }
 
-    // Intercept back button
     BackHandler {
         when (callState) {
             CallState.RINGING -> onDecline()
@@ -361,7 +487,6 @@ private fun IncomingCallScreen(
         }
     }
 
-    // Ringing 45-second timeout
     LaunchedEffect(callState) {
         if (callState == CallState.RINGING) {
             delay(45_000L)
@@ -369,7 +494,6 @@ private fun IncomingCallScreen(
         }
     }
 
-    // Call duration timer while answered
     LaunchedEffect(callState) {
         if (callState == CallState.ANSWERED) {
             while (isActive) {
@@ -379,7 +503,86 @@ private fun IncomingCallScreen(
         }
     }
 
-    // Gradient phone call background
+    if (showDialpad) {
+        DialpadDialog(onDismiss = { showDialpad = false })
+    }
+
+    when (callState) {
+        CallState.RINGING -> {
+            when (settings.callTheme) {
+                CallTheme.ONE_UI -> {
+                    SamsungIncomingCallUi(
+                        callerName = callerName,
+                        callerNumber = callerNumber,
+                        photoPath = photoPath,
+                        onAnswer = {
+                            callState = CallState.ANSWERED
+                            onAnswer()
+                        },
+                        onDecline = onDecline
+                    )
+                }
+                CallTheme.HYPER_OS -> {
+                    XiaomiIncomingCallUi(
+                        callerName = callerName,
+                        callerNumber = callerNumber,
+                        photoPath = photoPath,
+                        onAnswer = {
+                            callState = CallState.ANSWERED
+                            onAnswer()
+                        },
+                        onDecline = onDecline
+                    )
+                }
+                CallTheme.PIXEL -> {
+                    PixelIncomingCallUi(
+                        callerName = callerName,
+                        callerNumber = callerNumber,
+                        photoPath = photoPath,
+                        onAnswer = {
+                            callState = CallState.ANSWERED
+                            onAnswer()
+                        },
+                        onDecline = onDecline
+                    )
+                }
+            }
+        }
+
+        CallState.ANSWERED -> {
+            ActiveCallUi(
+                callerName = callerName,
+                callerNumber = callerNumber,
+                photoPath = photoPath,
+                durationSeconds = callDurationSeconds,
+                isMuted = isMuted,
+                isSpeakerOn = isSpeakerOn,
+                onMuteToggle = { isMuted = !isMuted },
+                onKeypadClick = { showDialpad = true },
+                onSpeakerToggle = {
+                    val next = !isSpeakerOn
+                    isSpeakerOn = next
+                    onSpeakerToggle(next)
+                },
+                onEndCall = { onEndCall(callDurationSeconds) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActiveCallUi(
+    callerName: String,
+    callerNumber: String,
+    photoPath: String?,
+    durationSeconds: Int,
+    isMuted: Boolean,
+    isSpeakerOn: Boolean,
+    onMuteToggle: () -> Unit,
+    onKeypadClick: () -> Unit,
+    onSpeakerToggle: () -> Unit,
+    onEndCall: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -398,31 +601,24 @@ private fun IncomingCallScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Header: Status and caller information
+            // Header Info & Duration
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(top = 16.dp)
             ) {
                 Text(
-                    text = when (callState) {
-                        CallState.RINGING -> stringResource(R.string.incoming_call_title)
-                        CallState.ANSWERED -> formatCallDuration(callDurationSeconds)
-                    },
+                    text = formatCallDuration(durationSeconds),
                     style = MaterialTheme.typography.titleMedium,
-                    color = when (callState) {
-                        CallState.RINGING -> Color(0xFF94A3B8)
-                        CallState.ANSWERED -> Color(0xFF38BDF8)
-                    },
-                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF38BDF8),
+                    fontWeight = FontWeight.Bold,
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Avatar / Photo
                 CallerAvatar(
                     name = callerName,
                     photoPath = photoPath,
-                    isRinging = callState == CallState.RINGING,
+                    isRinging = false,
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -444,83 +640,57 @@ private fun IncomingCallScreen(
                 }
             }
 
-            // Controls section based on CallState
-            when (callState) {
-                CallState.RINGING -> {
-                    // Ringing actions: Decline (Red) and Answer (Green)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 24.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        CallActionButton(
-                            icon = Icons.Filled.CallEnd,
-                            label = stringResource(R.string.incoming_call_decline),
-                            backgroundColor = Color(0xFFEF4444),
-                            contentColor = Color.White,
-                            size = 72,
-                            onClick = onDecline,
-                        )
+            // Interactive Controls Row & End Call
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CallControlButton(
+                        icon = if (isMuted) Icons.Filled.MicOff else Icons.Filled.Mic,
+                        label = stringResource(R.string.call_mute),
+                        isActive = isMuted,
+                        onClick = onMuteToggle,
+                    )
 
-                        CallActionButton(
-                            icon = Icons.Filled.Call,
-                            label = stringResource(R.string.incoming_call_answer),
-                            backgroundColor = Color(0xFF10B981),
-                            contentColor = Color.White,
-                            size = 72,
-                            onClick = {
-                                callState = CallState.ANSWERED
-                                onAnswer()
-                            },
-                        )
-                    }
+                    CallControlButton(
+                        icon = Icons.Filled.Dialpad,
+                        label = stringResource(R.string.call_keypad),
+                        isActive = false,
+                        onClick = onKeypadClick,
+                    )
+
+                    CallControlButton(
+                        icon = if (isSpeakerOn) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeDown,
+                        label = stringResource(R.string.call_speaker),
+                        isActive = isSpeakerOn,
+                        onClick = onSpeakerToggle,
+                    )
                 }
 
-                CallState.ANSWERED -> {
-                    // Answered controls: Mute, Speaker, and End Call
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 32.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            CallControlButton(
-                                icon = if (isMuted) Icons.Filled.MicOff else Icons.Filled.Mic,
-                                label = stringResource(R.string.call_mute),
-                                isActive = isMuted,
-                                onClick = { isMuted = !isMuted },
-                            )
+                Spacer(modifier = Modifier.height(36.dp))
 
-                            CallControlButton(
-                                icon = if (isSpeakerOn) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeDown,
-                                label = stringResource(R.string.call_speaker),
-                                isActive = isSpeakerOn,
-                                onClick = {
-                                    val next = !isSpeakerOn
-                                    isSpeakerOn = next
-                                    onSpeakerToggle(next)
-                                },
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(40.dp))
-
-                        CallActionButton(
-                            icon = Icons.Filled.CallEnd,
-                            label = stringResource(R.string.call_ended),
-                            backgroundColor = Color(0xFFEF4444),
-                            contentColor = Color.White,
-                            size = 76,
-                            onClick = { onEndCall(callDurationSeconds) },
-                        )
-                    }
+                // End Call Button
+                Box(
+                    modifier = Modifier
+                        .size(76.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFEF4444))
+                        .clickable(onClick = onEndCall),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CallEnd,
+                        contentDescription = stringResource(R.string.call_ended),
+                        tint = Color.White,
+                        modifier = Modifier.size(36.dp),
+                    )
                 }
             }
         }
@@ -536,12 +706,12 @@ private fun CallerAvatar(
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
-        targetValue = if (isRinging) 1.08f else 1f,
+        targetValue = 1.08f,
         animationSpec = infiniteRepeatable(
             animation = tween(900),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "avatarScale"
+        label = "avatar_pulse"
     )
 
     val hasPhoto = !photoPath.isNullOrBlank() && File(photoPath).exists()
@@ -549,7 +719,7 @@ private fun CallerAvatar(
     Box(
         modifier = Modifier
             .size(130.dp)
-            .scale(pulseScale),
+            .scale(if (isRinging) pulseScale else 1f),
         contentAlignment = Alignment.Center,
     ) {
         if (hasPhoto) {
@@ -559,81 +729,25 @@ private fun CallerAvatar(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(CircleShape)
-                    .border(3.dp, Color.White.copy(alpha = 0.2f), CircleShape),
+                    .clip(CircleShape),
             )
         } else {
-            val initials = remember(name) {
-                name.trim().split(" ")
-                    .filter { it.isNotBlank() }
-                    .take(2)
-                    .mapNotNull { it.firstOrNull()?.toString() }
-                    .joinToString("")
-                    .uppercase()
-                    .ifEmpty { "?" }
-            }
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(Color(0xFF0284C7))
-                    .border(3.dp, Color.White.copy(alpha = 0.2f), CircleShape),
+                    .background(Color(0xFF334155)),
                 contentAlignment = Alignment.Center,
             ) {
+                val initial = name.firstOrNull()?.toString()?.uppercase() ?: "?"
                 Text(
-                    text = initials,
+                    text = initial,
                     color = Color.White,
-                    fontSize = 44.sp,
+                    fontSize = 54.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun CallActionButton(
-    icon: ImageVector,
-    label: String,
-    backgroundColor: Color,
-    contentColor: Color,
-    size: Int,
-    onClick: () -> Unit,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Surface(
-            modifier = Modifier
-                .size(size.dp)
-                .clip(CircleShape)
-                .clickable { onClick() },
-            shape = CircleShape,
-            color = backgroundColor,
-            shadowElevation = 8.dp,
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    tint = contentColor,
-                    modifier = Modifier.size((size * 0.48).dp),
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.White,
-            fontWeight = FontWeight.Medium,
-        )
     }
 }
 
@@ -646,36 +760,23 @@ private fun CallControlButton(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick),
     ) {
         Surface(
-            modifier = Modifier
-                .size(62.dp)
-                .clip(CircleShape)
-                .clickable { onClick() },
             shape = CircleShape,
-            color = if (isActive) Color(0xFF38BDF8) else Color(0xFF1E293B),
-            shadowElevation = 4.dp,
+            color = if (isActive) Color.White else Color.White.copy(alpha = 0.15f),
+            contentColor = if (isActive) Color(0xFF0F172A) else Color.White,
+            modifier = Modifier.size(60.dp),
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    tint = if (isActive) Color(0xFF082F49) else Color.White,
-                    modifier = Modifier.size(28.dp),
-                )
+            Box(contentAlignment = Alignment.Center) {
+                Icon(icon, contentDescription = label, modifier = Modifier.size(28.dp))
             }
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = if (isActive) Color(0xFF38BDF8) else Color(0xFF94A3B8),
-            fontWeight = FontWeight.Medium,
+            color = Color(0xFF94A3B8),
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }
@@ -683,5 +784,5 @@ private fun CallControlButton(
 private fun formatCallDuration(seconds: Int): String {
     val m = seconds / 60
     val s = seconds % 60
-    return String.format(java.util.Locale.US, "%02d:%02d", m, s)
+    return String.format("%02d:%02d", m, s)
 }

@@ -64,4 +64,92 @@ object PermissionHelper {
             null
         }
     }
+
+    fun openNotificationSettings(context: Context) {
+        val intent = getNotificationSettingsIntent(context).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        safeStartActivity(context, intent)
+    }
+
+    fun openExactAlarmSettings(context: Context) {
+        val intent = getExactAlarmSettingsIntent(context)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (intent != null) {
+            safeStartActivity(context, intent)
+        } else {
+            openAppDetailsSettings(context)
+        }
+    }
+
+    fun openFullScreenIntentSettings(context: Context) {
+        val intent = getFullScreenIntentSettingsIntent(context)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (intent != null) {
+            safeStartActivity(context, intent)
+        } else {
+            openAppDetailsSettings(context)
+        }
+    }
+
+    fun openAppDetailsSettings(context: Context) {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.parse("package:${context.packageName}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        safeStartActivity(context, intent)
+    }
+
+    private fun safeStartActivity(context: Context, intent: Intent) {
+        try {
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            try {
+                val fallback = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.parse("package:${context.packageName}")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(fallback)
+            } catch (e2: Exception) {
+                // Ignore fallback failure
+            }
+        }
+    }
+
+    data class EssentialPermissionsStatus(
+        val hasNotifications: Boolean,
+        val hasExactAlarm: Boolean,
+        val hasFullScreenIntent: Boolean,
+    ) {
+        val allGranted: Boolean
+            get() = hasNotifications && hasExactAlarm && hasFullScreenIntent
+    }
+
+    fun getEssentialPermissionsStatus(context: Context): EssentialPermissionsStatus {
+        return EssentialPermissionsStatus(
+            hasNotifications = canPostNotifications(context),
+            hasExactAlarm = canScheduleExactAlarms(context),
+            hasFullScreenIntent = canUseFullScreenIntent(context),
+        )
+    }
+
+    fun areAllEssentialPermissionsGranted(context: Context): Boolean {
+        return getEssentialPermissionsStatus(context).allGranted
+    }
+
+    fun canRecordAudio(context: Context): Boolean {
+        return androidx.core.content.ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.RECORD_AUDIO
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    }
+
+    fun canReadContacts(context: Context): Boolean {
+        return androidx.core.content.ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.READ_CONTACTS
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    }
 }
