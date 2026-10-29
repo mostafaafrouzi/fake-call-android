@@ -1,11 +1,13 @@
 package com.afrouzi.fakecall.call
 
+import android.Manifest
 import android.app.KeyguardManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -80,6 +82,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import com.afrouzi.fakecall.FakeCallApplication
 import com.afrouzi.fakecall.R
@@ -413,7 +416,9 @@ class IncomingCallActivity : AppCompatActivity() {
             .build()
 
         runCatching {
-            NotificationManagerCompat.from(this).notify(System.currentTimeMillis().toInt(), notification)
+            if (Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                NotificationManagerCompat.from(this).notify(System.currentTimeMillis().toInt(), notification)
+            }
         }
     }
 

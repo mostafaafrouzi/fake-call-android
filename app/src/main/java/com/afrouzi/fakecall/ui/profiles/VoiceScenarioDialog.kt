@@ -296,12 +296,12 @@ fun VoiceScenarioBottomSheet(
                         FilterChip(
                             selected = customLanguage == "fa",
                             onClick = { customLanguage = "fa" },
-                            label = { Text("فارسی (FA)") }
+                            label = { Text(stringResource(R.string.voice_lang_fa)) }
                         )
                         FilterChip(
                             selected = customLanguage == "en",
                             onClick = { customLanguage = "en" },
-                            label = { Text("English (EN)") }
+                            label = { Text(stringResource(R.string.voice_lang_en)) }
                         )
                     }
 

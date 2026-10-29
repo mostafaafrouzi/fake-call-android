@@ -1,14 +1,17 @@
 package com.afrouzi.fakecall.scheduling
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.afrouzi.fakecall.FakeCallApplication
 import com.afrouzi.fakecall.R
 import com.afrouzi.fakecall.call.IncomingCallActivity
@@ -78,7 +81,9 @@ class CallAlarmReceiver : BroadcastReceiver() {
             .build()
 
         runCatching {
-            NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+            if (Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+            }
         }
 
         // Direct launch fallback when permitted

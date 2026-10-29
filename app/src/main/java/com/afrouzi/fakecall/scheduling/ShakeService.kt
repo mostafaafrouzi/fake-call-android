@@ -24,14 +24,15 @@ import com.afrouzi.fakecall.ui.MainActivity
 import com.afrouzi.fakecall.widget.FakeCallWidgetProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ShakeService : Service() {
 
-    private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var sensorManager: SensorManager? = null
     private var accelerometer: Sensor? = null
     private var shakeDetector: ShakeDetector? = null
@@ -157,6 +158,7 @@ class ShakeService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        serviceScope.cancel()
         shakeDetector?.let { sensorManager?.unregisterListener(it) }
         sensorManager = null
     }

@@ -217,6 +217,8 @@
     <string name="voice_scenario_tts_generating">در حال تولید فایل صوتی...</string>
     <string name="voice_scenario_applied_toast">صدای سناریو با موفقیت اعمال شد</string>
     <string name="voice_scenario_tts_error">موتور صوتی سیستم در این دستگاه پاسخ نداد</string>
+    <string name="voice_lang_fa">فارسی (FA)</string>
+    <string name="voice_lang_en">English (EN)</string>
 
     <!-- Scenario Items -->
     <string name="scenario_mom_title">مادر / خانواده (فوری)</string>
