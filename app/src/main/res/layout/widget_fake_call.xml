@@ -45,10 +45,10 @@
     </LinearLayout>
 
     <ImageView
+        android:id="@+id/widget_action_icon"
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:src="@android:drawable/ic_menu_call"
-        android:tint="#4CAF50"
         android:contentDescription="@string/widget_tap_to_call" />
 
 </LinearLayout>

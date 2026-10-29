@@ -3,6 +3,7 @@ package com.afrouzi.fakecall.widget
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -32,59 +33,62 @@ class FakeCallWidgetProvider : AppWidgetProvider() {
             val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
             if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return
 
-            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val name = prefs.getString(KEY_NAME_PREFIX + appWidgetId, context.getString(R.string.home_default_caller_name))
-                ?: context.getString(R.string.home_default_caller_name)
-            val number = prefs.getString(KEY_NUMBER_PREFIX + appWidgetId, context.getString(R.string.home_default_caller_number))
-                ?: context.getString(R.string.home_default_caller_number)
-            val photoPath = prefs.getString(KEY_PHOTO_PREFIX + appWidgetId, null)
-            val voicePath = prefs.getString(KEY_VOICE_PREFIX + appWidgetId, null)
-            val ringtoneUri = prefs.getString(KEY_RINGTONE_PREFIX + appWidgetId, null)
-            val delaySec = prefs.getLong(KEY_DELAY_PREFIX + appWidgetId, 10L)
-            val profileId = if (prefs.contains(KEY_PROFILE_ID_PREFIX + appWidgetId)) {
-                prefs.getLong(KEY_PROFILE_ID_PREFIX + appWidgetId, -1L).takeIf { it != -1L }
-            } else null
-
             val app = FakeCallApplication.from(context)
-            val triggerAt = System.currentTimeMillis() + (delaySec * 1000L)
-
-            val scheduledCall = ScheduledCall(
-                profileId = profileId,
-                callerName = name,
-                callerNumber = number,
-                photoPath = photoPath,
-                voicePath = voicePath,
-                ringtoneUri = ringtoneUri,
-                triggerAtMillis = triggerAt,
-                createdAt = System.currentTimeMillis(),
-            )
-
-            // Vibrate for feedback
-            runCatching {
-                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
-                    manager?.defaultVibrator
-                } else {
-                    @Suppress("DEPRECATION")
-                    context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator?.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
-                } else {
-                    @Suppress("DEPRECATION")
-                    vibrator?.vibrate(100)
-                }
-            }
 
             app.applicationScope.launch(Dispatchers.IO) {
-                val insertedId = app.scheduleRepository.scheduleCall(scheduledCall)
-                val callToSchedule = scheduledCall.copy(id = insertedId)
-                app.callScheduler.schedule(callToSchedule)
+                val pendingCalls = app.scheduleRepository.getFutureScheduledCallsList()
+                if (pendingCalls.isNotEmpty()) {
+                    // Call is currently pending! One-tap cancel
+                    for (pending in pendingCalls) {
+                        app.callScheduler.cancel(pending.id)
+                        app.scheduleRepository.deleteScheduledCall(pending.id)
+                    }
 
-                withContext(Dispatchers.Main) {
-                    val delayLabel = formatDelayString(context, delaySec)
-                    val toastMsg = context.getString(R.string.widget_scheduled_toast, name, delayLabel)
-                    Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
+                    vibrateFeedback(context, isCancel = true)
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, context.getString(R.string.widget_cancelled_toast), Toast.LENGTH_SHORT).show()
+                    }
+                    updateAllWidgets(context)
+                } else {
+                    // No pending call, schedule a new call
+                    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                    val name = prefs.getString(KEY_NAME_PREFIX + appWidgetId, context.getString(R.string.home_default_caller_name))
+                        ?: context.getString(R.string.home_default_caller_name)
+                    val number = prefs.getString(KEY_NUMBER_PREFIX + appWidgetId, context.getString(R.string.home_default_caller_number))
+                        ?: context.getString(R.string.home_default_caller_number)
+                    val photoPath = prefs.getString(KEY_PHOTO_PREFIX + appWidgetId, null)
+                    val voicePath = prefs.getString(KEY_VOICE_PREFIX + appWidgetId, null)
+                    val ringtoneUri = prefs.getString(KEY_RINGTONE_PREFIX + appWidgetId, null)
+                    val delaySec = prefs.getLong(KEY_DELAY_PREFIX + appWidgetId, 10L)
+                    val profileId = if (prefs.contains(KEY_PROFILE_ID_PREFIX + appWidgetId)) {
+                        prefs.getLong(KEY_PROFILE_ID_PREFIX + appWidgetId, -1L).takeIf { it != -1L }
+                    } else null
+
+                    val triggerAt = System.currentTimeMillis() + (delaySec * 1000L)
+                    val scheduledCall = ScheduledCall(
+                        profileId = profileId,
+                        callerName = name,
+                        callerNumber = number,
+                        photoPath = photoPath,
+                        voicePath = voicePath,
+                        ringtoneUri = ringtoneUri,
+                        triggerAtMillis = triggerAt,
+                        createdAt = System.currentTimeMillis(),
+                    )
+
+                    vibrateFeedback(context, isCancel = false)
+
+                    val insertedId = app.scheduleRepository.scheduleCall(scheduledCall)
+                    val callToSchedule = scheduledCall.copy(id = insertedId)
+                    app.callScheduler.schedule(callToSchedule)
+
+                    withContext(Dispatchers.Main) {
+                        val delayLabel = formatDelayString(context, delaySec)
+                        val toastMsg = context.getString(R.string.widget_scheduled_toast, name, delayLabel)
+                        Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
+                    }
+                    updateAllWidgets(context)
                 }
             }
         }
@@ -116,28 +120,83 @@ class FakeCallWidgetProvider : AppWidgetProvider() {
         const val KEY_PROFILE_ID_PREFIX = "widget_profile_id_"
 
         fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+            val app = FakeCallApplication.from(context)
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val name = prefs.getString(KEY_NAME_PREFIX + appWidgetId, context.getString(R.string.app_name))
                 ?: context.getString(R.string.app_name)
             val delaySec = prefs.getLong(KEY_DELAY_PREFIX + appWidgetId, 10L)
 
             val views = RemoteViews(context.packageName, R.layout.widget_fake_call)
-            views.setTextViewText(R.id.widget_caller_name, name)
-            views.setTextViewText(R.id.widget_call_delay, formatDelayString(context, delaySec))
 
-            val intent = Intent(context, FakeCallWidgetProvider::class.java).apply {
-                action = ACTION_SCHEDULE_WIDGET_CALL
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            app.applicationScope.launch(Dispatchers.IO) {
+                val hasPending = runCatching {
+                    app.scheduleRepository.getFutureScheduledCallsList().isNotEmpty()
+                }.getOrDefault(false)
+
+                if (hasPending) {
+                    views.setInt(R.id.widget_container, "setBackgroundResource", R.drawable.widget_background_pending)
+                    views.setTextViewText(R.id.widget_caller_name, name)
+                    views.setTextViewText(R.id.widget_call_delay, context.getString(R.string.widget_pending_status))
+                    views.setImageViewResource(R.id.widget_action_icon, android.R.drawable.ic_menu_close_clear_cancel)
+                } else {
+                    views.setInt(R.id.widget_container, "setBackgroundResource", R.drawable.widget_background)
+                    views.setTextViewText(R.id.widget_caller_name, name)
+                    views.setTextViewText(R.id.widget_call_delay, formatDelayString(context, delaySec))
+                    views.setImageViewResource(R.id.widget_action_icon, android.R.drawable.ic_menu_call)
+                }
+
+                val intent = Intent(context, FakeCallWidgetProvider::class.java).apply {
+                    action = ACTION_SCHEDULE_WIDGET_CALL
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                }
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    appWidgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+
+                appWidgetManager.updateAppWidget(appWidgetId, views)
             }
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                appWidgetId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+        }
 
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+        fun updateAllWidgets(context: Context) {
+            runCatching {
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val componentName = ComponentName(context, FakeCallWidgetProvider::class.java)
+                val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+                for (id in appWidgetIds) {
+                    updateAppWidget(context, appWidgetManager, id)
+                }
+            }
+        }
+
+        private fun vibrateFeedback(context: Context, isCancel: Boolean) {
+            runCatching {
+                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                    manager?.defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (isCancel) {
+                        vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 60, 60, 60), -1))
+                    } else {
+                        vibrator?.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    if (isCancel) {
+                        vibrator?.vibrate(longArrayOf(0, 60, 60, 60), -1)
+                    } else {
+                        vibrator?.vibrate(100)
+                    }
+                }
+            }
         }
 
         private fun formatDelayString(context: Context, delaySec: Long): String {

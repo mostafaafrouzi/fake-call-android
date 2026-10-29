@@ -48,6 +48,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
@@ -403,6 +404,7 @@ private fun ProfileEditSheetContent(
 
     // Recording states
     var isRecording by remember { mutableStateOf(false) }
+    var showVoiceScenarioSheet by remember { mutableStateOf(false) }
     var recordingSeconds by remember { mutableIntStateOf(0) }
     var isPreviewPlaying by remember { mutableStateOf(false) }
     var previewPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
@@ -835,6 +837,18 @@ private fun ProfileEditSheetContent(
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedButton(
+                        onClick = { showVoiceScenarioSheet = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                    ) {
+                        Icon(Icons.Filled.RecordVoiceOver, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(stringResource(R.string.profiles_voice_scenarios_btn), fontSize = 12.sp)
+                    }
                 }
             }
         }
@@ -946,6 +960,20 @@ private fun ProfileEditSheetContent(
             ) {
                 Text(stringResource(R.string.profiles_button_save), fontWeight = FontWeight.Bold)
             }
+        }
+
+        if (showVoiceScenarioSheet) {
+            VoiceScenarioBottomSheet(
+                onDismissRequest = { showVoiceScenarioSheet = false },
+                onVoiceSelected = { path ->
+                    previewPlayer?.stop()
+                    previewPlayer?.release()
+                    previewPlayer = null
+                    isPreviewPlaying = false
+                    voicePath = path
+                    showVoiceScenarioSheet = false
+                }
+            )
         }
     }
 }

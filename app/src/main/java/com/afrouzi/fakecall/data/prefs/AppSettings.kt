@@ -35,4 +35,7 @@ data class AppSettings(
     val showSystemApps: Boolean = false,
     val callTheme: CallTheme = CallTheme.ONE_UI,
     val askSaveProfileOnAdhoc: Boolean = true,
+    val shakeToCallEnabled: Boolean = false,
+    val shakeDelaySeconds: Int = 5,
+    val proximitySensorEnabled: Boolean = true,
 )

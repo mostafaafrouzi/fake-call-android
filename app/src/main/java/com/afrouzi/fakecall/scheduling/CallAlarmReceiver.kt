@@ -32,6 +32,7 @@ class CallAlarmReceiver : BroadcastReceiver() {
                     showIncomingCall(context, scheduledCall)
                     // Delete schedule row after firing
                     app.scheduleRepository.deleteScheduledCall(scheduleId)
+                    com.afrouzi.fakecall.widget.FakeCallWidgetProvider.updateAllWidgets(context)
                 }
             } finally {
                 pendingResult.finish()

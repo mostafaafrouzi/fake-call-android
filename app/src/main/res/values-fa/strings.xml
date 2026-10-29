@@ -188,4 +188,47 @@
     <string name="widget_save_button">افزودن ویجت به صفحه</string>
     <string name="widget_tap_to_call">لمس برای شروع تماس</string>
     <string name="widget_scheduled_toast">تماس از طرف %1$s برای %2$s دیگر زمان‌بندی شد</string>
+
+    <!-- Widget Dynamic Status -->
+    <string name="widget_pending_status">در حال زنگ خوردن... (لمس برای لغو)</string>
+    <string name="widget_cancelled_toast">تماس ساختگی لغو شد</string>
+
+    <!-- Shake to Call &amp; Proximity -->
+    <string name="settings_sensors_section">حسگرها و ژست‌های حرکتی</string>
+    <string name="settings_shake_title">تماس با تکان دادن گوشی (Shake)</string>
+    <string name="settings_shake_desc">با چند بار تکان دادن محرمانه گوشی در جیب، تماس ساختگی فعال می‌شود</string>
+    <string name="settings_shake_delay">مدت زمان تا زنگ خوردن</string>
+    <string name="settings_shake_delay_5s">۵ ثانیه</string>
+    <string name="settings_shake_delay_10s">۱۰ ثانیه</string>
+    <string name="settings_proximity_title">سنسور مجاورت</string>
+    <string name="settings_proximity_desc">خاموش شدن خودکار صفحه هنگام نزدیک کردن گوشی به گوش</string>
+    <string name="settings_shake_toast_triggered">تکان دادن گوشی تشخیص داده شد! تماس تا %1$d ثانیه دیگر</string>
+
+    <!-- Pre-recorded Voices &amp; TTS -->
+    <string name="profiles_voice_scenarios_btn">صداهای آماده و متن‌خوان (TTS)</string>
+    <string name="voice_scenarios_sheet_title">سناریوهای صوتی و متن‌خوان</string>
+    <string name="voice_scenario_tab_presets">سناریوهای آماده</string>
+    <string name="voice_scenario_tab_tts">تبدیل متن دلخواه به صدا</string>
+    <string name="voice_scenario_preview">پخش</string>
+    <string name="voice_scenario_stop">توقف</string>
+    <string name="voice_scenario_use">انتخاب این صدا</string>
+    <string name="voice_scenario_tts_hint">متنی که تماس‌گیرنده باید حین پاسخگویی بگوید را اینجا بنویسید...</string>
+    <string name="voice_scenario_tts_generate">تولید فایل صوتی</string>
+    <string name="voice_scenario_tts_generating">در حال تولید فایل صوتی...</string>
+    <string name="voice_scenario_applied_toast">صدای سناریو با موفقیت اعمال شد</string>
+    <string name="voice_scenario_tts_error">موتور صوتی سیستم در این دستگاه پاسخ نداد</string>
+
+    <!-- Scenario Items -->
+    <string name="scenario_mom_title">مادر / خانواده (فوری)</string>
+    <string name="scenario_mom_text">الو، سلام کجایی پس؟ نگرانت شدیم. یک کار فوری و مهم پیش اومده، لطفاً هر جا هستی سریع برگرد خونه کارت دارم.</string>
+    <string name="scenario_boss_title">رئیس / جلسه کاری</string>
+    <string name="scenario_boss_text">سلام وقت بخیر، کجایی شما؟ جلسه اضطراری شروع شده و همه منتظر شما هستند. لطفاً تا چند دقیقه آینده خودتون رو به اتاق جلسات برسونید.</string>
+    <string name="scenario_friend_title">دوست صمیمی / قرار</string>
+    <string name="scenario_friend_text">الو سلام چطوری؟ کجایی؟ داداش ما رسیدیم منتظرتیم، سریع‌تر خودتو برسون معطل نشیم. منتظرت هستیم.</string>
+    <string name="scenario_office_title">اداری و هماهنگی شرکتی</string>
+    <string name="scenario_office_text">سلام و احترام، از دفتر تماس می‌گیرم در خصوص موضوع هماهنگ‌شده؛ لطفاً در اسرع وقت تشریف بیارید.</string>
+    <string name="scenario_meeting_en_title">جلسه کاری اضطراری (انگلیسی)</string>
+    <string name="scenario_meeting_en_text">Hello, we are all waiting for you in the conference room. Could you please join us right away?</string>
+    <string name="scenario_family_en_title">فوریت خانوادگی (انگلیسی)</string>
+    <string name="scenario_family_en_text">Hey, where are you? Something really urgent just came up. Please call me back or head over right away!</string>
 </resources>

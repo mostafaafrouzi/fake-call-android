@@ -111,6 +111,7 @@ class IncomingCallActivity : AppCompatActivity() {
     private var proximitySensor: Sensor? = null
     private var proximityListener: SensorEventListener? = null
     private var isNearEarState = mutableStateOf(false)
+    private var currentSettings = AppSettings()
 
     private var callerName: String = ""
     private var callerNumber: String = ""
@@ -141,6 +142,7 @@ class IncomingCallActivity : AppCompatActivity() {
 
         setContent {
             val settings by app.settingsRepository.settings.collectAsState(initial = AppSettings())
+            currentSettings = settings
             val isNearEar by isNearEarState
 
             FakeCallTheme(settings = settings) {
@@ -158,7 +160,7 @@ class IncomingCallActivity : AppCompatActivity() {
                     )
 
                     // Blackout overlay when phone is held to ear
-                    if (isNearEar) {
+                    if (isNearEar && currentSettings.proximitySensorEnabled) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -267,7 +269,7 @@ class IncomingCallActivity : AppCompatActivity() {
         }
 
         // 2. Proximity sensor: Turn screen off when held to ear
-        runCatching {
+        if (currentSettings.proximitySensorEnabled) runCatching {
             val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
             if (pm?.isWakeLockLevelSupported(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK) == true) {
                 proximityWakeLock = pm.newWakeLock(
@@ -280,7 +282,7 @@ class IncomingCallActivity : AppCompatActivity() {
         }
 
         // Software proximity fallback listener
-        runCatching {
+        if (currentSettings.proximitySensorEnabled) runCatching {
             sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
             proximitySensor = sensorManager?.getDefaultSensor(Sensor.TYPE_PROXIMITY)
             if (proximitySensor != null) {

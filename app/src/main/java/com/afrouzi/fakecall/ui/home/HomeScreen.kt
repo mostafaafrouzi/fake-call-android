@@ -222,6 +222,7 @@ fun HomeScreen() {
 
             val id = app.scheduleRepository.scheduleCall(scheduledCall)
             app.callScheduler.schedule(scheduledCall.copy(id = id))
+            com.afrouzi.fakecall.widget.FakeCallWidgetProvider.updateAllWidgets(context)
             Toast.makeText(
                 context,
                 context.getString(R.string.home_call_scheduled_toast),
@@ -336,6 +337,7 @@ fun HomeScreen() {
                                 scope.launch {
                                     app.callScheduler.cancel(activeCall.id)
                                     app.scheduleRepository.deleteScheduledCall(activeCall.id)
+                                    com.afrouzi.fakecall.widget.FakeCallWidgetProvider.updateAllWidgets(context)
                                     Toast.makeText(
                                         context,
                                         context.getString(R.string.home_call_cancelled_toast),

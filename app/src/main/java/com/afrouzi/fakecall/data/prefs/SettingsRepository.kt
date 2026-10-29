@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +23,9 @@ class SettingsRepository(private val context: Context) {
     private val KEY_SHOW_SYSTEM = booleanPreferencesKey("show_system_apps")
     private val KEY_CALL_THEME = stringPreferencesKey("call_theme")
     private val KEY_ASK_SAVE_ADHOC = booleanPreferencesKey("ask_save_adhoc")
+    private val KEY_SHAKE_ENABLED = booleanPreferencesKey("shake_to_call_enabled")
+    private val KEY_SHAKE_DELAY = intPreferencesKey("shake_delay_seconds")
+    private val KEY_PROXIMITY_ENABLED = booleanPreferencesKey("proximity_sensor_enabled")
 
     val settings: Flow<AppSettings> = context.dataStore.data.map { prefs ->
         AppSettings(
@@ -45,6 +49,9 @@ class SettingsRepository(private val context: Context) {
                 CallTheme.valueOf(prefs[KEY_CALL_THEME] ?: CallTheme.ONE_UI.name)
             }.getOrDefault(CallTheme.ONE_UI),
             askSaveProfileOnAdhoc = prefs[KEY_ASK_SAVE_ADHOC] ?: true,
+            shakeToCallEnabled = prefs[KEY_SHAKE_ENABLED] ?: false,
+            shakeDelaySeconds = prefs[KEY_SHAKE_DELAY] ?: 5,
+            proximitySensorEnabled = prefs[KEY_PROXIMITY_ENABLED] ?: true,
         )
     }
 
@@ -78,5 +85,17 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setAskSaveProfileOnAdhoc(ask: Boolean) {
         context.dataStore.edit { it[KEY_ASK_SAVE_ADHOC] = ask }
+    }
+
+    suspend fun setShakeToCallEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[KEY_SHAKE_ENABLED] = enabled }
+    }
+
+    suspend fun setShakeDelaySeconds(seconds: Int) {
+        context.dataStore.edit { it[KEY_SHAKE_DELAY] = seconds }
+    }
+
+    suspend fun setProximitySensorEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[KEY_PROXIMITY_ENABLED] = enabled }
     }
 }

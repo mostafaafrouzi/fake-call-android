@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:name=".FakeCallApplication"
@@ -89,6 +91,15 @@
             </intent-filter>
         </service>
 
+        <!-- Shake to Call Background Service -->
+        <service
+            android:name=".scheduling.ShakeService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Detect shake motion sensor to trigger discreet fake call" />
+        </service>
     </application>
 
 </manifest>

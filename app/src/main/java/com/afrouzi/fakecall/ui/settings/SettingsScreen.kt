@@ -20,7 +20,9 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -315,6 +317,148 @@ fun SettingsScreen() {
                         }
                     }
                 )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 6. Sensors & Gestures Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.Vibration,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(R.string.settings_sensors_section),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Shake to Call Switch
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val newEnabled = !settings.shakeToCallEnabled
+                            scope.launch {
+                                app.settingsRepository.setShakeToCallEnabled(newEnabled)
+                                if (newEnabled) {
+                                    com.afrouzi.fakecall.scheduling.ShakeService.start(context)
+                                } else {
+                                    com.afrouzi.fakecall.scheduling.ShakeService.stop(context)
+                                }
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(modifier = Modifier.weight(1f).padding(end = 10.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_shake_title),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(R.string.settings_shake_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
+                    Switch(
+                        checked = settings.shakeToCallEnabled,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                app.settingsRepository.setShakeToCallEnabled(checked)
+                                if (checked) {
+                                    com.afrouzi.fakecall.scheduling.ShakeService.start(context)
+                                } else {
+                                    com.afrouzi.fakecall.scheduling.ShakeService.stop(context)
+                                }
+                            }
+                        }
+                    )
+                }
+
+                if (settings.shakeToCallEnabled) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.settings_shake_delay),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        FilterChip(
+                            selected = settings.shakeDelaySeconds == 5,
+                            onClick = {
+                                scope.launch { app.settingsRepository.setShakeDelaySeconds(5) }
+                            },
+                            label = { Text(stringResource(R.string.settings_shake_delay_5s)) }
+                        )
+                        FilterChip(
+                            selected = settings.shakeDelaySeconds == 10,
+                            onClick = {
+                                scope.launch { app.settingsRepository.setShakeDelaySeconds(10) }
+                            },
+                            label = { Text(stringResource(R.string.settings_shake_delay_10s)) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Proximity Sensor Switch
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            scope.launch {
+                                app.settingsRepository.setProximitySensorEnabled(!settings.proximitySensorEnabled)
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(modifier = Modifier.weight(1f).padding(end = 10.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_proximity_title),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(R.string.settings_proximity_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
+                    Switch(
+                        checked = settings.proximitySensorEnabled,
+                        onCheckedChange = { checked ->
+                            scope.launch {
+                                app.settingsRepository.setProximitySensorEnabled(checked)
+                            }
+                        }
+                    )
+                }
             }
         }
     }
