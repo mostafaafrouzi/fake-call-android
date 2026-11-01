@@ -1,23 +1,57 @@
 ## فارسی
 
-نسخهٔ **۰.۲.۰-beta1** اپلیکیشن **تماس ساختگی (Fake Call)** با بهبودهای چشمگیر در رابط کاربری، انتخاب مخاطب و سازگاری با دستگاه‌های مدرن:
+انتشار رسمی نسخهٔ **۱.۰.۰ (انتشار عمومی نخستین)** اپلیکیشن **تماس ساختگی (Fake Call)**:
 
-۱. **انتخاب مخاطب با استخراج تصویر:** امکان انتخاب مستقیم مخاطب از دفترچه تلفن گوشی در صفحهٔ اصلی و ساخت پروفایل؛ نام، شماره و تصویر پروفایل مخاطب با کیفیت بالا به‌صورت خودکار دریافت و جای‌گذاری می‌شود.
-۲. **بازطراحی و مدرن‌سازی رابط کاربری (UI):** طراحی کارت‌های مدرن در صفحهٔ اصلی با دکمهٔ زمان‌بندی شناور در پایین صفحه، اصلاح موقعیت دکمهٔ افزودن پروفایل (+) بالای نوار ناوبری و سازگاری کامل با نمایشگرهای باکیفیت و گوشی‌های پرچمدار (مانند Galaxy S24 Ultra).
-۳. **آیکون تطبیقی جدید لانچر:** بازطراحی آیکون برنامه و حل مشکل بزرگ‌نمایی بیش از حد در لانچرهای مختلف اندروید در تمام تراکم‌های پیکسلی (mdpi تا xxxhdpi).
-۴. **پوسته‌های واقع‌گرایانه تماس:** پشتیبانی از تم‌های مختلف تماس ورودی شامل سامسونگ (OneUI)، آیفون (iOS)، گوگل پیکسل و شیائومی (HyperOS) به همراه پد شماره‌گیر لمسی درون تماس.
-۵. **ویجت صفحه اصلی و کاشی تنظیمات سریع (Quick Settings Tile):** فعال‌سازی و شروع سریع تماس ساختگی با یک لمس از صفحه اصلی یا پنل بالای گوشی.
-۶. **بهینه‌سازی تایپوگرافی فارسی و راست‌چین:** فونت استاندارد ایران‌سنس ایکس، فرمت اعداد فارسی و اصلاح کامل متون در هر دو زبان فارسی و انگلیسی.
+۱. **سناریوهای صوتی استودیویی با هوش مصنوعی (Gemini AI):**
+   - تولید ۸ فایل صوتی باکیفیت استودیویی (۲۴ کیلوهرتز) برای هر دو زبان فارسی و انگلیسی (مامان/خانواده، رئیس/جلسه، دوست صمیمی، اداری).
+   - تعبیهٔ وقفهٔ طبیعی ۲ ثانیه‌ای بین احوالپرسی ابتدایی و بدنهٔ مکالمه جهت امکان پاسخگویی کاربر به سلام تماس‌گیرنده.
+   - امکان تعویض و پیش‌نمایش زبان سناریوها فارغ از زبان برنامه.
+
+۲. **ژست‌های حرکتی و سنسورها (Shake to Call & Proximity):**
+   - امکان فعال‌سازی تماس ساختگی با چند تکان محرمانه گوشی در جیب.
+   - سنسور مجاورت جهت خاموش شدن خودکار صفحه هنگام نزدیک کردن گوشی به گوش در حین مکالمه.
+
+۳. **پوسته‌های واقع‌گرایانه و صفحه مکالمه تعاملی:**
+   - پشتیبانی از تم‌های رسمی تماس ورودی سامسونگ (One UI)، شیائومی (HyperOS) و گوگل پیکسل (Material You).
+   - صفحه حین مکالمه تعاملی به همراه تایمر فعال تماس با ارقام فارسی، قطع صدا، اسپیکر و پد شماره‌گیر لمسی (Keypad).
+
+۴. **انتخاب مخاطب از دفترچه تلفن:**
+   - خواندن مستقیم نام، شماره تلفن و عکس پروفایل از مخاطبین گوشی و جای‌گذاری خودکار در فرم.
+
+۵. **دسترسی سریع، ویجت و کاشی تنظیمات:**
+   - ویجت اختصاصی صفحهٔ اصلی برای زمان‌بندی تماس با یک لمس.
+   - کاشی تنظیمات سریع (Quick Settings Tile) در پنل اعلانات برای شروع تماس اضطراری.
+
+۶. **امنیت و حریم خصوصی ۱۰۰٪ آفلاین:**
+   - بدون مجوز اینترنت (`INTERNET Permission`).
+   - ذخیره‌سازی محلی و بدون هیچ‌گونه ردیاب، تبلیغات یا ارسال داده به سرور.
 
 ---
 
 ## English
 
-Version **0.2.0-beta1** of **Fake Call (تماس ساختگی)** featuring major UI modernizations, contact photo extraction, and modern Android enhancements:
+Official **v1.0.0 (Initial Public Release)** of **Fake Call (تماس ساختگی)**:
 
-1. **Contact Picker with Photo Import:** Seamlessly select contacts from your device address book in both Home and Profiles sheets; contact name, number, and high-resolution photo are automatically imported.
-2. **Modernized UI:** Redesigned Home screen featuring elevated cards with the schedule action button pinned above the navigation bar, optimized FAB positioning in Profiles, and responsive layout for modern flagship displays.
-3. **New Adaptive Launcher Icon:** Fully updated launcher mipmaps preventing excessive icon zoom across various Android launchers and screen densities.
-4. **Realistic Call Screen Themes:** Choose between Samsung OneUI, iOS, Google Pixel, and Xiaomi HyperOS styles with an interactive in-call dialpad.
-5. **Quick Settings Tile & Home Widget:** Launch instant fake calls directly from your Quick Settings panel or home screen widget with one tap.
-6. **Bilingual & Typography Enhancements:** Refined RTL layout, Persian numerals, and typography for both Persian and English.
+1. **Studio-Grade AI Voice Scenarios (Powered by Gemini AI):**
+   - 8 pre-recorded studio-quality voice scenarios across Persian and English (Mom/Family, Boss/Meeting, Friend/Hangout, Office).
+   - Built-in 2-second realistic answering pause between greeting and conversation body.
+   - Independent language switcher in the voice selector dialog.
+
+2. **Sensors & Discreet Gestures (Shake to Call & Proximity):**
+   - Trigger emergency fake calls discreetly by shaking the phone in your pocket.
+   - Proximity sensor blanks the screen naturally when held against the ear.
+
+3. **Authentic Incoming Call Themes & Active Call Screen:**
+   - Realistic skins for Samsung (One UI), Xiaomi (HyperOS), and Google (Pixel / Material You).
+   - Interactive in-call screen with live duration timer, mute, speaker toggle, and working dialpad.
+
+4. **Address Book Contact Import:**
+   - Auto-import caller name, phone number, and avatar photo directly from your device contacts.
+
+5. **Quick Widgets & Fast Scheduling:**
+   - Home Screen App Widget for instant 1-tap call activation.
+   - Quick Settings Tile in the Android notification shade for emergency calls.
+
+6. **100% Offline Privacy Guarantee:**
+   - Zero internet permission (`INTERNET`) in the manifest.
+   - Completely local sandbox storage with no telemetry, tracking, or ads.

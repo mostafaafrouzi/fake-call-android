@@ -221,16 +221,27 @@
     <string name="voice_lang_en">English (EN)</string>
 
     <!-- Scenario Items -->
-    <string name="scenario_mom_title">Mom / Family Emergency</string>
-    <string name="scenario_mom_text">Hello, where are you? We are worried. Something important just came up, please come home as soon as you can.</string>
-    <string name="scenario_boss_title">Boss / Urgent Meeting</string>
-    <string name="scenario_boss_text">Hello, where are you? The emergency meeting has started and everyone is waiting for you. Please come to the conference room immediately.</string>
-    <string name="scenario_friend_title">Close Friend / Waiting</string>
-    <string name="scenario_friend_text">Hey! Where are you? We just arrived and are waiting for you, please hurry up so we don\'t get delayed!</string>
-    <string name="scenario_office_title">Office / Appointment</string>
-    <string name="scenario_office_text">Hello, I am calling from the office regarding our scheduled matter. Please head over within the next few minutes.</string>
-    <string name="scenario_meeting_en_title">Urgent Meeting (English)</string>
-    <string name="scenario_meeting_en_text">Hello, we are all waiting for you in the conference room. Could you please join us right away?</string>
-    <string name="scenario_family_en_title">Family Emergency (English)</string>
-    <string name="scenario_family_en_text">Hey, where are you? Something really urgent just came up. Please call me back or head over right away!</string>
+    <string name="scenario_mom_title">Mom / Family Emergency (Persian)</string>
+    <string name="scenario_mom_text">الو؟ سلام عزیزم، صدای منو داری؟ کجایی پس قربونت برم؟ دلمون هزار راه رفت! مامان یه کار خیلی واجبی پیش اومده تو خونه، هر جا هستی زود خودتو برسون باشه؟ منتظرتم بدو بیا.</string>
+    <string name="scenario_boss_title">Boss / Urgent Meeting (Persian)</string>
+    <string name="scenario_boss_text">الو؟ سلام وقت بخیر، صدای بنده رو می‌شنوید؟ کجایی شما مهندس؟ جلسه اضطراری اعضای هیئت‌مدیره شروع شده و همه منتظر توضیحات شما هستند. لطفاً بدون فوت وقت تشریف بیارید اتاق جلسات.</string>
+    <string name="scenario_friend_title">Close Friend / Hangout (Persian)</string>
+    <string name="scenario_friend_text">الو چطوری؟ سلام، رسیدی؟ کجایی پسر؟ ما همه بچه‌ها رسیدیم، فقط لنگ توایم! بدو بیا دیگه نیم ساعته منتظرت نشستیم، سریع‌تر خودتو برسون دمت گرم!</string>
+    <string name="scenario_office_title">Office / Administrative Inquiry (Persian)</string>
+    <string name="scenario_office_text">الو، سلام جناب. وقتتون بخیر. از دفتر پیگیری امور اداری تماس می‌گیرم. مدارک ارسالی شما نیاز به امضا و تایید حضوری فوری داره. اگر امکانش هست همین الان حضوری تشریف بیارید تا روند اداری متوقف نشه.</string>
+
+    <string name="scenario_mom_en_title">Mom / Family Emergency</string>
+    <string name="scenario_mom_en_text">Hello sweetie, can you hear me? Where are you? We got so worried! Something really urgent just came up at home, can you please pack up and head back right now? We really need you.</string>
+    <string name="scenario_boss_en_title">Boss / Urgent Meeting</string>
+    <string name="scenario_boss_en_text">Hello, good afternoon. Are you on the line? Where are you? The emergency board meeting has already started and everyone is waiting for your briefing. Please come to the conference room immediately.</string>
+    <string name="scenario_friend_en_title">Close Friend / Hangout</string>
+    <string name="scenario_friend_en_text">"Hey! What's up, you there? Dude, where are you? We're all at the spot right now, you're the only one missing! Hurry up and get over here, we're waiting for you!"</string>
+    <string name="scenario_office_en_title">Office / Official Inquiry</string>
+    <string name="scenario_office_en_text">"Hello, good day. Speaking with you. I'm calling regarding an urgent administrative matter that requires your immediate signature. Could you please step by the office as soon as possible to finalize this?"</string>
+
+    <string name="voice_tts_persian_unsupported_warning">Notice: Custom text-to-speech relies on your device\'s built-in TTS engine. Android does not support Persian speech synthesis by default.\nFor Persian voices, please choose from preset scenarios or record your own voice using the microphone.</string>
+    <string name="about_privacy_title">Privacy &amp; Data Security</string>
+    <string name="about_privacy_desc">This app has no internet access. All picked contacts, photos, and voice recordings remain 100% offline on your device storage; no data ever leaves your phone.</string>
+    <string name="about_privacy_dialog_title">Privacy Policy</string>
+    <string name="about_privacy_dialog_content">Fake Call is engineered with complete privacy in mind:\n\n1. Zero Internet Access: The app does not request or possess INTERNET permission. It is technically impossible for any data to leave your device.\n\n2. Contacts Access (READ_CONTACTS): Only utilized when you explicitly tap \"Pick from contacts\" to autofill name, number, and avatar.\n\n3. Microphone (RECORD_AUDIO): Strictly used for recording custom voice responses to play back during fake calls. Saved exclusively in private internal storage.\n\n4. No Tracking or Ads: Contains no analytics SDKs, tracking libraries, or third-party advertising frameworks.</string>
 </resources>

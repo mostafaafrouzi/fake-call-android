@@ -1,7 +1,11 @@
 package com.afrouzi.fakecall.data.repository
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import com.afrouzi.fakecall.data.model.VoiceScenario
@@ -9,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.util.Locale
 import java.util.UUID
 import kotlin.coroutines.resume
@@ -17,6 +22,8 @@ class VoiceScenarioManager(private val context: Context) : TextToSpeech.OnInitLi
 
     private var tts: TextToSpeech? = null
     private var isInitialized = false
+    private var previewPlayer: MediaPlayer? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     init {
         tts = TextToSpeech(context.applicationContext, this)
@@ -28,15 +35,102 @@ class VoiceScenarioManager(private val context: Context) : TextToSpeech.OnInitLi
         }
     }
 
-    fun playPreview(text: String, languageCode: String) {
-        if (!isInitialized) return
+    fun playScenarioPreview(
+        scenario: VoiceScenario,
+        fallbackText: String,
+        onFinished: () -> Unit
+    ) {
+        stopPreview()
+
+        // 1. If scenario has a bundled asset file, play directly via MediaPlayer!
+        if (!scenario.assetFileName.isNullOrBlank()) {
+            runCatching {
+                val player = MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .build()
+                    )
+                    try {
+                        val afd = context.assets.openFd(scenario.assetFileName)
+                        setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                        afd.close()
+                    } catch (e: Exception) {
+                        // In case asset is compressed, extract to temp file
+                        val tempFile = File(context.cacheDir, "preview_${System.currentTimeMillis()}.wav")
+                        context.assets.open(scenario.assetFileName).use { input ->
+                            FileOutputStream(tempFile).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        setDataSource(tempFile.absolutePath)
+                    }
+                    prepare()
+                    setOnCompletionListener {
+                        stopPreview()
+                        mainHandler.post { onFinished() }
+                    }
+                    start()
+                }
+                previewPlayer = player
+                return
+            }.onFailure {
+                stopPreview()
+                mainHandler.post { onFinished() }
+            }
+            return
+        }
+
+        // 2. Otherwise use TTS
+        playTtsPreview(fallbackText, scenario.languageCode, onFinished)
+    }
+
+    fun playTtsPreview(
+        text: String,
+        languageCode: String,
+        onFinished: () -> Unit
+    ) {
+        stopPreview()
+        if (!isInitialized || text.isBlank()) {
+            onFinished()
+            return
+        }
+
         val locale = if (languageCode == "fa") Locale("fa", "IR") else Locale.ENGLISH
         tts?.language = locale
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "preview_${System.currentTimeMillis()}")
+
+        val utteranceId = "preview_${System.currentTimeMillis()}"
+        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(id: String?) {}
+            override fun onDone(id: String?) {
+                if (id == utteranceId) {
+                    mainHandler.post { onFinished() }
+                }
+            }
+            override fun onError(id: String?) {
+                if (id == utteranceId) {
+                    mainHandler.post { onFinished() }
+                }
+            }
+        })
+
+        val result = tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+        if (result != TextToSpeech.SUCCESS) {
+            onFinished()
+        }
     }
 
     fun stopPreview() {
-        tts?.stop()
+        runCatching {
+            previewPlayer?.stop()
+            previewPlayer?.release()
+        }
+        previewPlayer = null
+
+        runCatching {
+            tts?.stop()
+        }
     }
 
     suspend fun applyScenario(
@@ -114,7 +208,7 @@ class VoiceScenarioManager(private val context: Context) : TextToSpeech.OnInitLi
     }
 
     fun shutdown() {
-        tts?.stop()
+        stopPreview()
         tts?.shutdown()
         tts = null
     }

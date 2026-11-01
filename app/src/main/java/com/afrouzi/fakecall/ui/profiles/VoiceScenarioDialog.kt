@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Stop
@@ -38,6 +39,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +59,8 @@ import com.afrouzi.fakecall.FakeCallApplication
 import com.afrouzi.fakecall.R
 import com.afrouzi.fakecall.data.model.VoiceScenario
 import com.afrouzi.fakecall.data.model.VoiceScenarios
+import com.afrouzi.fakecall.data.prefs.AppLanguage
+import com.afrouzi.fakecall.data.prefs.AppSettings
 import com.afrouzi.fakecall.data.repository.VoiceScenarioManager
 import kotlinx.coroutines.launch
 
@@ -70,6 +75,16 @@ fun VoiceScenarioBottomSheet(
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    val settings by app.settingsRepository.settings.collectAsState(initial = AppSettings())
+    val isPersian = when (settings.language) {
+        AppLanguage.PERSIAN -> true
+        AppLanguage.ENGLISH -> false
+        AppLanguage.SYSTEM -> {
+            val lang = java.util.Locale.getDefault().language
+            lang == "fa" || lang == "ar"
+        }
+    }
+
     val scenarioManager = remember { VoiceScenarioManager(context) }
     DisposableEffect(Unit) {
         onDispose {
@@ -80,8 +95,21 @@ fun VoiceScenarioBottomSheet(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var currentlyPlayingId by remember { mutableStateOf<String?>(null) }
     var isGenerating by remember { mutableStateOf(false) }
+
+    // Preset scenarios language selection - defaults to current app language
+    var selectedPresetLang by remember(isPersian) {
+        mutableStateOf(if (isPersian) "fa" else "en")
+    }
+
+    // Custom TTS text and language
     var customTtsText by remember { mutableStateOf("") }
-    var customLanguage by remember { mutableStateOf("fa") }
+    var customLanguage by remember { mutableStateOf(if (isPersian) "en" else "en") }
+
+    LaunchedEffect(isPersian) {
+        if (isPersian) {
+            customLanguage = "en"
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -161,17 +189,55 @@ fun VoiceScenarioBottomSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             if (selectedTabIndex == 0) {
+                // Preset Scenarios: Language filter chips (Both Persian and English always available)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilterChip(
+                        selected = selectedPresetLang == "fa",
+                        onClick = {
+                            scenarioManager.stopPreview()
+                            currentlyPlayingId = null
+                            selectedPresetLang = "fa"
+                        },
+                        label = { Text(stringResource(R.string.voice_lang_fa)) },
+                        leadingIcon = if (selectedPresetLang == "fa") {
+                            { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                        } else null
+                    )
+                    FilterChip(
+                        selected = selectedPresetLang == "en",
+                        onClick = {
+                            scenarioManager.stopPreview()
+                            currentlyPlayingId = null
+                            selectedPresetLang = "en"
+                        },
+                        label = { Text(stringResource(R.string.voice_lang_en)) },
+                        leadingIcon = if (selectedPresetLang == "en") {
+                            { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                        } else null
+                    )
+                }
+
+                val currentScenarios = remember(selectedPresetLang) {
+                    VoiceScenarios.all.filter { it.languageCode == selectedPresetLang }
+                }
+
                 // Preset Scenarios List
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(380.dp),
+                        .height(370.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(VoiceScenarios.all) { scenario ->
+                    items(currentScenarios, key = { it.id }) { scenario ->
                         val isPlaying = currentlyPlayingId == scenario.id
                         val scenarioText = stringResource(scenario.textRes)
 
@@ -207,8 +273,12 @@ fun VoiceScenarioBottomSheet(
                                                 scenarioManager.stopPreview()
                                                 currentlyPlayingId = null
                                             } else {
-                                                scenarioManager.playPreview(scenarioText, scenario.languageCode)
                                                 currentlyPlayingId = scenario.id
+                                                scenarioManager.playScenarioPreview(scenario, scenarioText) {
+                                                    if (currentlyPlayingId == scenario.id) {
+                                                        currentlyPlayingId = null
+                                                    }
+                                                }
                                             }
                                         },
                                         shape = RoundedCornerShape(10.dp)
@@ -222,7 +292,7 @@ fun VoiceScenarioBottomSheet(
                                         Text(
                                             text = stringResource(
                                                 if (isPlaying) R.string.voice_scenario_stop else R.string.voice_scenario_preview
-                                            ),
+                                             ),
                                             fontSize = 12.sp
                                         )
                                     }
@@ -271,8 +341,40 @@ fun VoiceScenarioBottomSheet(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(380.dp)
+                        .height(370.dp)
                 ) {
+                    // Warning when app/system language is Persian
+                    if (isPersian) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.45f)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(20.dp).padding(top = 2.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = stringResource(R.string.voice_tts_persian_unsupported_warning),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    lineHeight = 18.sp
+                                )
+                            }
+                        }
+                    }
+
                     Text(
                         text = stringResource(R.string.voice_scenario_tts_hint),
                         style = MaterialTheme.typography.bodyMedium,
@@ -285,28 +387,31 @@ fun VoiceScenarioBottomSheet(
                         onValueChange = { customTtsText = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(120.dp),
+                            .height(110.dp),
                         shape = RoundedCornerShape(12.dp),
                         placeholder = { Text(stringResource(R.string.voice_scenario_tts_hint)) }
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Language chips for Custom TTS: Persian option is removed if isPersian
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         FilterChip(
-                            selected = customLanguage == "fa",
-                            onClick = { customLanguage = "fa" },
-                            label = { Text(stringResource(R.string.voice_lang_fa)) }
-                        )
-                        FilterChip(
-                            selected = customLanguage == "en",
+                            selected = true,
                             onClick = { customLanguage = "en" },
-                            label = { Text(stringResource(R.string.voice_lang_en)) }
+                            label = { Text(stringResource(R.string.voice_lang_en)) },
+                            leadingIcon = {
+                                Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                            }
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
+                    val isCustomTtsPlaying = currentlyPlayingId == "custom_tts"
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -314,16 +419,34 @@ fun VoiceScenarioBottomSheet(
                         OutlinedButton(
                             onClick = {
                                 if (customTtsText.isNotBlank()) {
-                                    scenarioManager.playPreview(customTtsText, customLanguage)
+                                    if (isCustomTtsPlaying) {
+                                        scenarioManager.stopPreview()
+                                        currentlyPlayingId = null
+                                    } else {
+                                        currentlyPlayingId = "custom_tts"
+                                        scenarioManager.playTtsPreview(customTtsText, customLanguage) {
+                                            if (currentlyPlayingId == "custom_tts") {
+                                                currentlyPlayingId = null
+                                            }
+                                        }
+                                    }
                                 }
                             },
                             enabled = customTtsText.isNotBlank() && !isGenerating,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(
+                                imageVector = if (isCustomTtsPlaying) Icons.Filled.Stop else Icons.Filled.PlayArrow,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(stringResource(R.string.voice_scenario_preview))
+                            Text(
+                                stringResource(
+                                    if (isCustomTtsPlaying) R.string.voice_scenario_stop else R.string.voice_scenario_preview
+                                )
+                            )
                         }
 
                         Button(

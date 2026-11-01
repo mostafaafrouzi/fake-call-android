@@ -156,17 +156,27 @@ class ShakeService : Service() {
         }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()
         shakeDetector?.let { sensorManager?.unregisterListener(it) }
         sensorManager = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
-        private const val NOTIFICATION_ID = 2001
+        private const val NOTIFICATION_ID = 2002
 
         fun start(context: Context) {
             runCatching {

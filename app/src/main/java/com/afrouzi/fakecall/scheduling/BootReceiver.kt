@@ -7,6 +7,7 @@ import com.afrouzi.fakecall.FakeCallApplication
 import com.afrouzi.fakecall.data.model.CallHistoryItem
 import com.afrouzi.fakecall.data.model.CallOutcome
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class BootReceiver : BroadcastReceiver() {
@@ -38,6 +39,12 @@ class BootReceiver : BroadcastReceiver() {
                         )
                         app.scheduleRepository.deleteScheduledCall(call.id)
                     }
+                }
+
+                // Restart Shake to Call service if enabled
+                val settings = app.settingsRepository.settings.firstOrNull()
+                if (settings?.shakeToCallEnabled == true) {
+                    ShakeService.start(context)
                 }
             } finally {
                 pendingResult.finish()

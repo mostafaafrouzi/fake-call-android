@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
+import com.afrouzi.fakecall.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -175,7 +176,9 @@ object ContactPickerHelper {
             file.exists() && file.length() > 0
         }
 
-        Log.d(TAG, "Extracted contact: name=$pickedName, number=$cleanNumber, photoPath=$validPhotoPath")
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Extracted contact: name=$pickedName, number=$cleanNumber, photoPath=$validPhotoPath")
+        }
 
         PickedContactResult(
             name = pickedName,
